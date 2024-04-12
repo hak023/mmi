@@ -31,11 +31,19 @@ def funcDisConnectDB(_objDb):
 
 def funcGetServerActiveAndStandby(_objDb, _strServerName):
     cursor = _objDb.cursor()
-    cursor.execute("SELECT * FROM SAM_NETIF WHERE hostName LIKE %s", ('%-' + _strServerName + '%',))
+    cursor.execute("SELECT * FROM SAM_NETIF WHERE hostName LIKE %s AND netIfType = 'lan'", ('%-' + _strServerName + '%',))
     rows = cursor.fetchall()
     result_list = []
     for row in rows:
         result_list.append(row)
+
+    # 첫 번째 쿼리의 결과가 없는 경우, 두 번째 쿼리를 실행합니다. 
+    if not result_list:
+        cursor.execute("SELECT * FROM SAM_NETIF WHERE hostName LIKE %s AND netIfType = 'vlan'", ('%-' + _strServerName + '%',))
+        rows = cursor.fetchall()
+        for row in rows:
+            result_list.append(row)
+
     return result_list
 
 def funcGetServerActive(_objDb, _strServerName): 

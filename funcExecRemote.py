@@ -41,7 +41,7 @@ def funcExecRemote(server, script_file_name, target):
             #print(listServerInfo[5])
 
     for strRemoteIp in strRemoteTagetList:
-        strReturn += execute_remote_script(strRemoteIp, ssl_port, ssl_account, ssl_password, script)
+        strReturn += str(execute_remote_script(strRemoteIp, ssl_port, ssl_account, ssl_password, script))
         #print("funcExecRemote : ", strRemoteIp, " / ", ssl_port, " / ",ssl_account, " / ", ssl_password, " / ", script)
         #print("strReturn:",strReturn) 
     return strReturn
@@ -51,21 +51,21 @@ def execute_remote_script(server, port, username, password, script_path):
     try:
         ssh = paramiko.SSHClient()
 
-        # ¿½º¿ ¿¸¦ ¿ÀÇÁ ¾Ê½
+        # ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê½
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-        # SSH ¿¬°á¿À¾¿ôÊ
+        # SSH ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         ssh.connect(server, port, username, password, timeout=1)
         #ssh.connect(server, port=port, username=username, password=password, timeout=1)
 
-        # ¿øº¿¸³¿ ½Çà¿À¾¿ôÊ
+        # ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         stdin, stdout, stderr = ssh.exec_command(script_path, timeout=1)
 
-        # ½Çàá °¡n¿1â       
+        # ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½nï¿½1ï¿½       
         result = stdout.read().decode('utf-8')
         errmsg = stderr.read().decode('utf-8')
 
-        # °á Ã·Â        
+        # ï¿½ï¿½ Ã·ï¿½        
         #print("Script input test:", server, port, username, password, script_path)
         #print("Script execution result:",result)
         if len(errmsg) > 0 :
@@ -79,7 +79,7 @@ def execute_remote_script(server, port, username, password, script_path):
         ssh.close()
 
 def test():
-    # Á¾î dº¸
+    # ï¿½ï¿½ï¿½ dï¿½ï¿½
     server = '121.134.202.235'
     port = 10022  # SSH Æ¿
     username = 'vfras'
@@ -88,7 +88,7 @@ def test():
     #script_path = '/home/vfras/mmi/hak_test.sh'
     #script_path = '/home/vfras/mmi/DIS-SIP-NODE.py'
 
-    # ¿øº¿¸³¿ ½Çà   execut
+    # ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½   execut
     #execute_remote_script(server, port, username, password, script_path)
     result = funcExecRemote("CP","DIS-SIP-RMT.py","active")
     print(result) 
