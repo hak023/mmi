@@ -79,6 +79,13 @@ def main():
             strRemoteServerName = strParameterValue
         else:
             funcHelpPrint()
+            funcMmiPrint.funcMmiPrintComplete()
+            return
+        
+        # strParameterValue 에 아무것도 없을때.
+        if len(strParameterValue) < 1 :
+            funcHelpPrint()
+            funcMmiPrint.funcMmiPrintComplete()
             return
     else:
         funcHelpPrint()

@@ -21,7 +21,7 @@ def test():
 def funcExecMmiRemote(strServerName):
     nReturnValue = "fail"
     try:
-        result = funcExecRemote.funcExecRemote(strServerName,"SWAP-HA.py","active")
+        result = funcExecRemote.funcExecRemote(strServerName,"SW-HA.py","active")
         if "bash" in result:
             print(result)
         else:
@@ -87,9 +87,17 @@ def main():
             strRemoteServerName = strParameterValue
         else:
             funcHelpPrint()
+            funcMmiPrint.funcMmiPrintComplete()
+            return
+        
+        # strParameterValue 에 아무것도 없을때.
+        if len(strParameterValue) < 1 :
+            funcHelpPrint()
+            funcMmiPrint.funcMmiPrintComplete()
             return
     else:
         funcHelpPrint()
+        funcMmiPrint.funcMmiPrintComplete()
         return
 
     if "EMS" in strRemoteServerName:

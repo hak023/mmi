@@ -8,6 +8,9 @@ import subprocess
 import funcExecRemote
 from funcHostName import funcGetMyServerName
 import re
+from Logger import funcGetLogger
+
+logger=funcGetLogger()
 
 def test():
     now = datetime.datetime.now()
@@ -21,7 +24,7 @@ def test():
     output_data = {"collectTime": formatted_time}
     output_data.update({"servers": data})
 
-    print(json.dumps(output_data, indent=4))
+    logger.info(json.dumps(output_data, indent=4))
 
 
 def funcExecMmiRemote(strServerName):
@@ -31,10 +34,10 @@ def funcExecMmiRemote(strServerName):
     try:
         result = funcExecRemote.funcExecRemote(strServerName,"SIP-ALL-DEACT.py","all")
     except subprocess.TimeoutExpired as e:
-        print("Command execution timed out : ", e)
+        logger.error("Command execution timed out : ", e)
         result = "Failed"
     except Exception as e:
-        print(e)
+        logger.error(e)
         result = "Failed"
 
     if "bash" in result:
@@ -73,7 +76,7 @@ def funcEmsRole():
     output_data.update({"result": strExecRemoteResult})
 
     output_json = json.dumps(output_data, indent=4)
-    print(output_json)
+    logger.info(output_json)
 
     return
 

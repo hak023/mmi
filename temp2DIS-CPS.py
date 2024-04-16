@@ -8,6 +8,9 @@ import subprocess
 import funcExecRemote
 from funcHostName import funcGetMyServerName
 import re
+from Logger import funcGetLogger
+
+logger=funcGetLogger()
 
 def test():
     now = datetime.datetime.now()
@@ -25,7 +28,7 @@ def test():
     output_data = {"collectTime": formatted_time}
     output_data.update({"servers": data})
 
-    print(json.dumps(output_data, indent=4))
+    logger.info(json.dumps(output_data, indent=4))
 
 
 def funcExecMmiRemote(strServerName):
@@ -57,7 +60,7 @@ def funcEmsRole():
     output_data.update({"servers": data})
 
     output_json = json.dumps(output_data, indent=4)
-    print(output_json)
+    logger.info(output_json)
 
     return
 
@@ -96,7 +99,7 @@ def funcServiceRole():
         #for test.
         strMakeResult = '{"total": 10000, "current": 9876}'
 
-    print(strMakeResult)
+    logger.info(strMakeResult)
     return
 
     #for test.

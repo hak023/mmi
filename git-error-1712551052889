@@ -1,0 +1,14 @@
+> git -c user.useConfigOnly=true commit --quiet
+Error: Bad status code: 500
+    at ClientRequest.<anonymous> (/home/vfras/.vscode-server/cli/servers/Stable-5c3e652f63e798a5ac2f31ffd0d863669328dc4c/server/extensions/git/dist/git-editor-main.js:1:470)
+    at Object.onceWrapper (node:events:632:26)
+    at ClientRequest.emit (node:events:517:28)
+    at HTTPParser.parserOnIncomingClient (node:_http_client:700:27)
+    at HTTPParser.parserOnHeadersComplete (node:_http_common:119:17)
+    at Socket.socketOnData (node:_http_client:541:22)
+    at Socket.emit (node:events:517:28)
+    at addChunk (node:internal/streams/readable:335:12)
+    at readableAddChunk (node:internal/streams/readable:308:9)
+    at Readable.push (node:internal/streams/readable:245:10)
+error: There was a problem with the editor '"/home/vfras/.vscode-server/cli/servers/Stable-5c3e652f63e798a5ac2f31ffd0d863669328dc4c/server/extensions/git/dist/git-editor.sh"'.
+Please supply the message using either -m or -F option.

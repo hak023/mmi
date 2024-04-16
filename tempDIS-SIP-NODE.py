@@ -3,6 +3,9 @@
 
 import subprocess
 import json
+from Logger import funcGetLogger
+
+logger=funcGetLogger()
 
 def run_DIS_SIP_RMT():
     try:
@@ -10,6 +13,7 @@ def run_DIS_SIP_RMT():
         return output.decode('utf-8')
     except subprocess.CalledProcessError as e:
         print("Error running DIS-SIP-RMT.py:", e)
+        logger.error("Error running DIS-SIP-RMT.py:", e)
         return None
 
 def run_DIS_RTE():
@@ -18,6 +22,7 @@ def run_DIS_RTE():
         return output.decode('utf-8')
     except subprocess.CalledProcessError as e:
         print("Error running DIS-SIP-RMT.py:", e)
+        logger.error("Error running DIS-SIP-RMT.py:", e)
         return None
 
 def parse_rmt_output(output):
@@ -110,6 +115,7 @@ def main():
     # 결과 딕셔너리를 JSON 형식으로 출력
     result_json = json.dumps(result_data, indent=4)
     print(result_json)
+    logger.info(result_json)
 
 if __name__ == "__main__":
     main()

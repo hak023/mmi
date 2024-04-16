@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import json
+from Logger import funcGetLogger
+
+logger=funcGetLogger()
 
 # �Է� ������ ����
 test_data = """Recv End
@@ -28,4 +31,4 @@ RESULT     = OK
 
 """
 
-print(test_data)
+logger.info(test_data)

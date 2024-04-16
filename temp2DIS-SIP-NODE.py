@@ -6,6 +6,9 @@ import json
 from funcHostName import funcGetMyServerName
 import funcExecRemote
 import sys
+from Logger import funcGetLogger
+
+logger=funcGetLogger()
 
 #not use.
 def run_DIS_SIP_RMT():
@@ -14,6 +17,7 @@ def run_DIS_SIP_RMT():
         return output.decode('utf-8')
     except subprocess.CalledProcessError as e:
         print("Error running DIS-SIP-RMT.py:", e)
+        logger.error("Error running DIS-SIP-RMT.py:", e)
         return None
 
 #not use.
@@ -23,6 +27,7 @@ def run_DIS_RTE():
         return output.decode('utf-8')
     except subprocess.CalledProcessError as e:
         print("Error running DIS-SIP-RMT.py:", e)
+        logger.error("Error running DIS-SIP-RMT.py:", e)
         return None
 
 def parse_loc_output(output):
@@ -51,7 +56,7 @@ def parse_loc_output(output):
                         header = "LOC_NAME"
                     else:
                         continue 
-                    print("test hak. headers:", headers, ", header:", header, ", i:", i, ", values:", values)
+                    logger.debug("test hak. headers:", headers, ", header:", header, ", i:", i, ", values:", values)
                     entry[header] = values[i]
                 data.append(entry)
     return data, rmt_count, rmt_result
@@ -146,7 +151,7 @@ def main_pre():
     result_data["data"] = merged_data
     
     result_json = json.dumps(result_data, indent=4)
-    print(result_json)
+    logger.info(result_json)
 
 def funcParseRmtAndRte(strDisSipRmtResult, strDisRteResult):
     result_data = {}
@@ -178,7 +183,7 @@ def funcParseRmtAndRte(strDisSipRmtResult, strDisRteResult):
  
     #result_json = json.dumps(result_data, indent=4)
     result_json = json.dumps(sorted_data, indent=4)
-    print(result_json)
+    logger.info(result_json)
     return
 
 

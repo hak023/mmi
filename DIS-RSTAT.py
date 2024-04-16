@@ -8,6 +8,9 @@ import subprocess
 import funcDbInfo
 from funcHostName import funcGetMyServerName
 import funcMmiPrint
+from Logger import funcGetLogger
+
+logger=funcGetLogger()
 
 def test():
     now = datetime.datetime.now()
@@ -19,7 +22,7 @@ def test():
     output_data = {"collectTime": formatted_time}
     output_data.update({"servers": data})
 
-    print(json.dumps(output_data, indent=4))
+    logger.info(json.dumps(output_data, indent=4))
     return
 
 def funcServiceRole(strRemoteServiceName):
@@ -37,18 +40,18 @@ def funcExecRstat():
     try:
         output = subprocess.check_output(['/home/vfras/bin/RSTAT'])
         strExcuteOutput = output.decode('utf-8')
-        print(strExcuteOutput)
+        logger.info(strExcuteOutput)
         strResult = "success"
     except subprocess.CalledProcessError as e:
         strResult = "fail"
-        print(e, " ", strExcuteOutput)
+        logger.error(e, " ", strExcuteOutput)
 
     return strResult
 
 def funcEmsRole():
     #print("%-16s %-16s %-16s" % ("FRAS", "SERVICE", "STATISTICS"))
-    print("%s %s %s" % ("FRAS", "SERVICE", "STATISTICS"))
-    print("------------------------------------------------------------------")
+    logger.info("%s %s %s" % ("FRAS", "SERVICE", "STATISTICS"))
+    logger.info("------------------------------------------------------------------")
     result = funcExecRstat()
     return
 

@@ -9,6 +9,9 @@ import subprocess
 import funcExecRemote
 from funcHostName import funcGetMyServerName
 import re
+from Logger import funcGetLogger
+
+logger=funcGetLogger()
 
 # test 함수는 현재 시간을 가져와서 서버의 cps 값을 포함하는 JSON 객체를 출력합니다.
 def test():
@@ -27,7 +30,7 @@ def test():
     output_data = {"collectTime": formatted_time}
     output_data.update({"servers": data})
 
-    print(json.dumps(output_data, indent=4))
+    logger.info(json.dumps(output_data, indent=4))
 
 # funcExecMmiRemote 함수는 주어진 서버 이름에 대해 원격으로 MMI 명령을 실행합니다.
 def funcExecMmiRemote(strServerName):
@@ -58,7 +61,7 @@ def funcEmsRole():
     output_data.update({"servers": data})
 
     output_json = json.dumps(output_data, indent=4)
-    print(output_json)
+    logger.info(output_json)
 
     return
 
@@ -100,7 +103,7 @@ def funcServiceRole():
         #for test.
         nCps = 88
 
-    print(nCps)
+    logger.info(nCps)
     return
 
 # main 함수는 프로그램의 주 실행 루틴입니다.

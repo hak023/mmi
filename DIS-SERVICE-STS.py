@@ -7,6 +7,9 @@ import sys
 import subprocess
 import funcExecRemote
 from funcHostName import funcGetMyServerName
+from Logger import funcGetLogger
+
+logger=funcGetLogger()
 
 def test():
     now = datetime.datetime.now()
@@ -20,7 +23,7 @@ def test():
     output_data = {"collectTime": formatted_time}
     output_data.update({"servers": data})
 
-    print(json.dumps(output_data, indent=4))
+    logger.info(json.dumps(output_data, indent=4))
 
 #strServerName ex)CP01, CP02, AS01, AS ...
 #strProcess ex) Myview, ASFR
@@ -34,7 +37,7 @@ def funcExecMmiRemote(strServerName, strService, strStatus):
     try:
         result = funcExecRemote.funcExecRemote(strServerName,"DIS-SERVICE-STS.py " + strArgument, strStatus)
         if "bash" in result:
-            print(result)
+            logger.info(result)
             nTotal, nCurrent = 0, 0
         elif len(result) < 1:
             nTotal, nCurrent = 0, 0 
@@ -78,7 +81,7 @@ def funcEmsRole():
     output_data.update({"servers": data})
 
     output_json = json.dumps(output_data, indent=4)
-    print(output_json)
+    logger.info(output_json)
 
     return
 
@@ -86,7 +89,7 @@ def funcServiceRole(strRemoteServiceName):
     strMakeData = f'{{"service": "{strRemoteServiceName}", "total": 10000, "current": 9876}}'
  
     #for test.
-    print(strMakeData)
+    logger.info(strMakeData)
     return
 
 def main():

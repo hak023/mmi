@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import json
+from Logger import funcGetLogger
+
+logger=funcGetLogger()
 
 # 입력 데이터 예시
 test_data = """Recv End
@@ -34,4 +37,4 @@ COMPLETED - IBC53 2024-03-27 11:31:49.794
 
 """
 
-print(test_data)
+logger.info(test_data)

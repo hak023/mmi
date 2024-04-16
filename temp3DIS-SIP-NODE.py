@@ -6,6 +6,9 @@ import json
 from funcHostName import funcGetMyServerName
 import funcExecRemote
 import sys
+from Logger import funcGetLogger
+
+logger=funcGetLogger()
 
 #not use.
 def run_DIS_SIP_RMT():
@@ -13,7 +16,7 @@ def run_DIS_SIP_RMT():
         output = subprocess.check_output(['/home/vfras/mmi/DIS-SIP-RMT.py'])
         return output.decode('utf-8')
     except subprocess.CalledProcessError as e:
-        print("Error running DIS-SIP-RMT.py:", e)
+        logger.error("Error running DIS-SIP-RMT.py:", e)
         return None
 
 #not use.
@@ -22,7 +25,7 @@ def run_DIS_RTE():
         output = subprocess.check_output(['/home/vfras/mmi/DIS-RTE.py'])
         return output.decode('utf-8')
     except subprocess.CalledProcessError as e:
-        print("Error running DIS-SIP-RMT.py:", e)
+        logger.error("Error running DIS-SIP-RMT.py:", e)
         return None
 
 def parse_loc_output(output):

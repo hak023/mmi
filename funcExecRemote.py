@@ -7,6 +7,9 @@ import paramiko
 import funcDbInfo
 import configparser
 import sys
+from Logger import funcGetLogger
+
+logger=funcGetLogger()
 
 #parameter info
 #target : choose "active" or "all"
@@ -91,7 +94,7 @@ def test():
     # ������� ���   execut
     #execute_remote_script(server, port, username, password, script_path)
     result = funcExecRemote("CP","DIS-SIP-RMT.py","active")
-    print(result) 
+    logger.info(result) 
 
 def main():
     test()

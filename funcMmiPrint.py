@@ -4,6 +4,9 @@
 import sys
 import datetime
 import os
+from Logger import funcGetLogger
+
+logger=funcGetLogger()
 
 def funcMmiDisHa(listArgv):
     strInputCommand = " ".join(listArgv)
@@ -57,6 +60,46 @@ def funcMmiDisProcess(listArgv):
     print("[OUTPUT]")
     return 
 
+def funcMmiDisMpaBlock(listArgv):
+    strInputCommand = " ".join(listArgv)
+    strMakeUpCommand = os.path.basename(strInputCommand)
+    print("[INPUT]")
+    #command
+    print("COMMAND : ", strMakeUpCommand)
+    print("")
+    #command comment
+    print("DISPLAY MPA BLOCK")
+    print("")
+    print("[OUTPUT]")
+    return
+
+def funcMmiSetMpaBlock(listArgv):
+    strInputCommand = " ".join(listArgv)
+    strMakeUpCommand = os.path.basename(strInputCommand)
+    print("[INPUT]")
+    #command
+    print("COMMAND : ", strMakeUpCommand)
+    print("")
+    #command comment
+    print("SETTING MPA BLOCK")
+    print("")
+    print("[OUTPUT]")
+    return
+
+def funcMmiDelMpaBlock(listArgv):
+    strInputCommand = " ".join(listArgv)
+    strMakeUpCommand = os.path.basename(strInputCommand)
+    print("[INPUT]")
+    #command
+    print("COMMAND : ", strMakeUpCommand)
+    print("")
+    #command comment
+    print("DELETE MPA BLOCK")
+    print("")
+    print("[OUTPUT]")
+    return
+
+
 def funcMmiPrint(listArgv):
     now = datetime.datetime.now()
     current_time = now.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
@@ -64,12 +107,18 @@ def funcMmiPrint(listArgv):
     print("")
     if "DIS-HA" in listArgv[0]:
         funcMmiDisHa(listArgv)
-    elif "SWAP-HA" in listArgv[0]:
+    elif "SW-HA" in listArgv[0]:
         funcMmiSwapHa(listArgv)
     elif "DIS-RSTAT" in listArgv[0]:
         funcMmiDisRstat(listArgv)
     elif "DIS-PROCESS" in listArgv[0]:
         funcMmiDisProcess(listArgv)
+    elif "DIS-MPA-BLOCK" in listArgv[0]:
+        funcMmiDisMpaBlock(listArgv)
+    elif "SET-MPA-BLOCK" in listArgv[0]:
+        funcMmiSetMpaBlock(listArgv)
+    elif "DEL-MPA-BLOCK" in listArgv[0]:
+        funcMmiDelMpaBlock(listArgv)
     return 
 
 def funcMmiPrintComplete():

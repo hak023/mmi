@@ -6,6 +6,9 @@ import json
 from funcHostName import funcGetMyServerName
 import funcExecRemote
 import sys
+from Logger import funcGetLogger
+
+logger=funcGetLogger()
 
 #not use.
 def run_DIS_SIP_RMT():
@@ -13,7 +16,7 @@ def run_DIS_SIP_RMT():
         output = subprocess.check_output(['/home/vfras/mmi/DIS-SIP-RMT.py'])
         return output.decode('utf-8')
     except subprocess.CalledProcessError as e:
-        print("Error running DIS-SIP-RMT.py:", e)
+        logger.error("Error running DIS-SIP-RMT.py:", e)
         return None
 
 #not use.
@@ -22,7 +25,7 @@ def run_DIS_RTE():
         output = subprocess.check_output(['/home/vfras/mmi/DIS-RTE.py'])
         return output.decode('utf-8')
     except subprocess.CalledProcessError as e:
-        print("Error running DIS-SIP-RMT.py:", e)
+        logger.error("Error running DIS-SIP-RMT.py:", e)
         return None
 
 def parse_loc_output(output):
@@ -154,26 +157,26 @@ def merge_rte_and_loc_data(rte_data, loc_data, merged_data):
 def main_pre():
     rmt_output = run_DIS_SIP_RMT()
     rte_output = run_DIS_RTE()
-    result_data = {}  # »õ·Î¿î µñ¼Å³Ê¸® »ý¼º
+    result_data = {}  
     if rmt_output:
         rmt_data, rmt_count, rmt_result = parse_rmt_output(rmt_output)
         if rmt_data:
             merged_rmt_data = {}
             for entry in rmt_data:
-                merged_rmt_data.update(entry)  # °¢ µñ¼Å³Ê¸®¸¦ º´ÇÕ
+                merged_rmt_data.update(entry) 
             rmt_output_data = {"RMT_RESULT": rmt_result, "data": merged_rmt_data, "RMT_CNT": rmt_count}
-            result_data.update(rmt_output_data)  # ÇÕÄ¥ µñ¼Å³Ê¸®¿¡ Ãß°¡
+            result_data.update(rmt_output_data) 
         else:
             error_message = {"RMT_RESULT": "NOK"}
-            result_data.update(error_message)  # ÇÕÄ¥ µñ¼Å³Ê¸®¿¡ Ãß°¡
+            result_data.update(error_message) 
     if rte_output:
         rte_data, rte_count, rte_result = parse_rte_output(rte_output)
         if rte_data:
             rte_output_data = {"RTE_RESULT": rte_result, "data": rte_data, "RTE_CNT": rte_count}
-            result_data.update(rte_output_data)  # ÇÕÄ¥ µñ¼Å³Ê¸®¿¡ Ãß°¡
+            result_data.update(rte_output_data) 
     else:
         error_message = {"RTE_RESULT": "NOK"}
-        result_data.update(error_message)  # ÇÕÄ¥ µñ¼Å³Ê¸®¿¡ Ãß°¡
+        result_data.update(error_message)  
     
     merged_data = []
     merged_data = merge_rte_and_loc_data(rte_data, loc_data, merged_data)
@@ -181,7 +184,7 @@ def main_pre():
     result_data["data"] = merged_data
     
     result_json = json.dumps(result_data, indent=4)
-    print(result_json)
+    logger.info(result_json)
 
 def funcParseLocAndRmtAndRte(strDisSipLocResult, strDisSipRmtResult, strDisRteResult):
     result_data = {}
@@ -229,7 +232,7 @@ def funcParseLocAndRmtAndRte(strDisSipLocResult, strDisSipRmtResult, strDisRteRe
  
     #result_json = json.dumps(result_data, indent=4)
     result_json = json.dumps(sorted_data, indent=4)
-    print(result_json)
+    logger.info(result_json)
     return
 
 # not use.
@@ -238,7 +241,7 @@ def funcParseRmtResult(strDisRteResult):
         rte_data, rte_count, rte_result = parse_rte_output(strDisRteResult)
         if rte_data:
             rte_output_data = {"RTE_RESULT": rte_result, "data": rte_data, "RTE_CNT": rte_count}
-            #result_data.update(rte_output_data)  # ÇÕÄ¥ µñ¼Å³Ê¸®¿¡ Ãß°¡
+            #result_data.update(rte_output_data)  
     else:
         rte_output_data = {"RTE_RESULT": "NOK"}
         #result_data.update(error_message)
@@ -251,12 +254,12 @@ def funcExecMmiDisSipLoc(strServerName):
 
 def funcExecMmiDisSipRmt(strServerName):
     result = funcExecRemote.funcExecRemote(strServerName,"DIS-SIP-RMT.py","all")
-    #print(result)
+    logger.info(result)
     return result
 
 def funcExecMmiDisRte(strServerName):
     result = funcExecRemote.funcExecRemote(strServerName,"DIS-RTE.py","all")
-    #print(result)
+    logger.info(result)
     return result
 
 def funcEmsRole(strRemoteServerName):

@@ -4,6 +4,9 @@
 import datetime
 import json
 from funcHostName import funcGetMyServerName
+from Logger import funcGetLogger
+
+logger=funcGetLogger()
 
 def test():
     # 현재 시간을 가져옴
@@ -24,6 +27,7 @@ def test():
 
     # JSON 형식으로 출력
     print(json.dumps(output_data, indent=4))
+    logger.info(json.dumps(output_data, indent=4))
 
 def funcEmsRole():
     return

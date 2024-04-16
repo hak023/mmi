@@ -3,13 +3,16 @@
 
 import MySQLdb
 import configparser
+from Logger import funcGetLogger
+
+logger=funcGetLogger()
 
 def funcConnectDB():
-    # ¼³d ÆÀ À±â   c
+    # config 파일을 읽어옵니다.
     config = configparser.ConfigParser()
-    config.read('conf/info.cfg')
+    config.read('/home/vfras/mmi/conf/info.cfg')
 
-    # MySQL ¿¬°á³d
+    # config 파일에서 데이터베이스 정보를 읽어옵니다.
     mysql_host = config.get('COMMON', 'mysql.host')
     mysql_port = config.getint('COMMON', 'mysql.port')
     mysql_account = config.get('COMMON', 'mysql.account')
@@ -17,7 +20,7 @@ def funcConnectDB():
     mysql_database = config.get('COMMON', 'mysql.database')
     mysql_charset = config.get('COMMON', 'mysql.charset')
 
-    # MySQL ¿¬°á   d
+    # 데이터베이스에 연결합니다.
     db = MySQLdb.connect(host=mysql_host,
                          port=mysql_port,
                          user=mysql_account,
@@ -46,6 +49,7 @@ def funcGetServerActiveAndStandby(_objDb, _strServerName):
 
     return result_list
 
+# strServerName ex)AS01, AS02, AS03, AS04 ...
 def funcGetServerActive(_objDb, _strServerName): 
     cursor = _objDb.cursor()
     query = "SELECT ipAddress \
@@ -64,6 +68,7 @@ def funcGetServerActive(_objDb, _strServerName):
         result_list.append(row)
     return result_list
 
+# strServerName ex)AS01, AS02, AS03, AS04 ...
 def funcGetHaStatus(_objDb):
     cursor = _objDb.cursor()
     query = "SELECT \
@@ -92,14 +97,14 @@ def main():
     active_result_list = funcGetServerActive(objDb, "AS")
     
     ha_status_result = funcGetHaStatus(objDb)
-    print(ha_status_result)
+    logger.info(ha_status_result)
 
-    print("Number of items in result_list:", len(result_list))
+    logger.info("Number of items in result_list:", len(result_list))
     for item in result_list:
-        print("IP:", item)
-    print("Number of items in active_result_list:", len(active_result_list))
+        logger.info("IP:", item)
+    logger.info("Number of items in active_result_list:", len(active_result_list))
     for item in active_result_list:
-        print("IP:", item)
+        logger.info("IP:", item)
     funcDisConnectDB(objDb)
 
 if __name__ == "__main__":

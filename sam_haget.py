@@ -2,6 +2,9 @@
 
 import sys
 from harpc.client import *
+from Logger import funcGetLogger
+
+logger=funcGetLogger()
 
 _DEBUG = False
 
@@ -21,7 +24,7 @@ def main(argv=None):
         _client.connect()
         
         if _DEBUG :
-            print "Processing command : ", _command
+            logger.info( "Processing command : ", _command)
 
         _client.sendMessage(_command)
         
@@ -29,26 +32,26 @@ def main(argv=None):
             _response = _client.readMessage()
             
             if _DEBUG :
-                print "Response is ", _response
+                logger.info( "Response is ", _response)
                 
             if _command == "status" :
-                print parseStatusCode(_response)
+                logger.info(parseStatusCode(_response))
             else :
-                print _response
+                _command _response
         
         return 0
     except Exception as e:
-        print e
+        logger.error( e)
 	return -1
         
     finally :
         if _DEBUG :
-            print "Closing socket..."
+            logger.info( "Closing socket...")
             
         _client.close()
         
         if _DEBUG :
-            print "Closed"
+            logger.info( "Closed")
 
 if __name__ == "__main__":
     sys.exit(main())

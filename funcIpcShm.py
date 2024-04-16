@@ -5,6 +5,10 @@ import posix_ipc
 import mmap
 import struct
 
+from Logger import funcGetLogger
+
+logger=funcGetLogger()
+
 # 공유 메모리의 키와 크기 정의
 SHARED_MEMORY_KEY = "0x00fb0019"
 SHARED_MEMORY_SIZE = 24  # 4 (int) + 16 (char) + 4 (int) = 24 bytes
@@ -56,4 +60,4 @@ if __name__ == "__main__":
     print("Integer:", int_value)
     print("String:", str_value)
     print("Temporary Integer:", temp_value)
-
+    logger.info(f"Read from shared memory: Intger: {int_value}, String: {str_value}, Temporary Integer: {temp_value}")
