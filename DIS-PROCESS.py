@@ -11,6 +11,9 @@ import funcMmiPrint
 import time
 import importlib
 import funcExecRemote
+from Logger import funcGetLogger
+
+logger=funcGetLogger()
 
 def test():
     return
@@ -24,10 +27,12 @@ def funcExecMmiRemote(strServerName):
         result = funcExecRemote.funcExecRemote(strServerName,"DIS-PROCESS.py","all")
         if "bash" in result:
             print(result)
+            #logger.info(result)
         else:
             nReturnValue = "success"
     except Exception as e:
         print("error : ", e) 
+        #logger.error("error : ", e)
 
     return nReturnValue 
 
@@ -38,10 +43,12 @@ def funcCheckProcess():
         output = subprocess.check_output(['/home/vfras/bin/chk'])
         strExcuteOutput = output.decode('utf-8')
         print(strExcuteOutput)
+        #logger.info(strExcuteOutput)
         strResult = "success"
     except subprocess.CalledProcessError as e:
         strResult = "fail"
         print(e, " ", strExcuteOutput) 
+        #logger.error(e, " ", strExcuteOutput)
 
     return strResult 
 

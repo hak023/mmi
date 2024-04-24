@@ -10,6 +10,9 @@ from funcHostName import funcGetMyServerName
 import re
 import importlib
 import funcMmiPrint
+from Logger import funcGetLogger
+
+logger=funcGetLogger()
 
 # 파일 경로
 file_path = "/home/vfras/config/MPRM/mp_block.cmd"
@@ -35,10 +38,13 @@ def funcReadMpBlockFile():
                 funcDataBlockProcessForOneLine(mpa_code)
     except FileNotFoundError:
         print(f"{file_path} 파일을 찾을 수 없습니다.")
+        #logger.error(f"{file_path} 파일을 찾을 수 없습니다.")
     except PermissionError:
         print(f"{file_path} 파일을 읽을 권한이 없습니다.")
+        #logger.error(f"{file_path} 파일을 읽을 권한이 없습니다.")
     except Exception as e:
         print(f"파일 처리 중 에러가 발생했습니다: {e}")
+        #logger.error(f"파일 처리 중 에러가 발생했습니다: {e}")
     return
 
 # strId ex) 1,3,22
@@ -63,10 +69,13 @@ def funcAddMpUnBlockToFile(strId):
 
     except FileNotFoundError:
         print(f"{file_path} 파일을 찾을 수 없습니다.")
+        #logger.error(f"{file_path} 파일을 찾을 수 없습니다.")
     except PermissionError:
         print(f"{file_path} 파일을 작성할 권한이 없습니다.")
+        #logger.error(f"{file_path} 파일을 작성할 권한이 없습니다.")
     except Exception as e:
         print(f"파일 처리 중 에러가 발생했습니다: {e}")
+        #logger.error(f"파일 처리 중 에러가 발생했습니다: {e}")
     return
 
 def funcDataBlockProcessForOneLine(strMpaBlockConfigOneLine):
@@ -114,6 +123,7 @@ def funcExecMmiRemote(strServerName, strParameter):
         result = funcExecRemote.funcExecRemote(strServerName,"DEL-MPA-BLOCK.py " + strParameter, "active")
         if "bash" in result:
             print("error: ", result)
+            #logger.error("error: ", result)
         elif len(result) < 1:
             # nothing work.
             pass
@@ -122,8 +132,8 @@ def funcExecMmiRemote(strServerName, strParameter):
             # nothing work.
             pass
     except Exception as e:
-        print("error: ", e)
-
+        print(f"error: {e}") 
+        #logger.error(f"error: {e}") 
     return result
 
 def funcDisMpaBlock():

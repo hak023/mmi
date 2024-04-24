@@ -4,38 +4,39 @@
 import datetime
 import json
 from funcHostName import funcGetMyServerName
-from funcIpcShm import read_shared_memory
+from funcIpcShm import test_read_shared_memory
 from Logger import funcGetLogger
 
 logger=funcGetLogger()
 
 def test():
-    # ÇöÀç ½Ã°£À» °¡Á®¿È
+    # ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     now = datetime.datetime.now()
 
-    # ÇöÀç ½Ã°£À» ¿øÇÏ´Â Çü½ÄÀ¸·Î Æ÷¸ËÆÃ
+    # ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     formatted_time = now.strftime("%Y-%m-%dT%H:%M:%S")
 
-    # °íÁ¤°ªÀ¸·Î ¼³Á¤µÈ µ¥ÀÌÅÍ
+    # ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     data = [
             {"server": "CP01", "total": 10000, "current": 9999},
             {"server": "CP02", "total": 10000, "current": 8888}
             ]
 
-    # collectTime ÇÊµå Ãß°¡
+    # collectTime ï¿½Êµï¿½ ï¿½ß°ï¿½
     output_data = {"collectTime": formatted_time}
     output_data.update({"servers": data})
 
-    # JSON Çü½ÄÀ¸·Î Ãâ·Â
-    print(json.dumps(output_data, indent=4))
-    logger.info(json.dumps(output_data, indent=4))
+    # JSON ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+    json_dump = json.dumps(output_data, indent=4)
+    print(json_dump)
+    #logger.info(json_dump)
 
 def funcEmsRole():
     #strResult = funcExecRemote("AS","DIS-SIP-SES.py","all")
     return
 
 def funcServiceRole():
-    int_value, str_value, temp_value = read_shared_memory()
+    int_value, str_value, temp_value = test_read_shared_memory()
 
     #make json
 

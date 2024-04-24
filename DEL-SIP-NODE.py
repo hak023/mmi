@@ -19,7 +19,8 @@ def funcExecMmiRemote(strServerName, strParameter):
     nCurrent = 0
     result = ""
     try:
-        result = funcExecRemote.funcExecRemote(strServerName, 'ADD-SIP-NODE.py ' + strParameter, "all")
+        strParameter = " " + strParameter
+        result = funcExecRemote.funcExecRemote(strServerName, 'DEL-SIP-NODE.py' + strParameter, "all")
     except subprocess.TimeoutExpired as e:
         #logger.error("Command execution timed out : ", e)
         result = "Failed"
@@ -95,7 +96,7 @@ def funcCheckValidationRte(dicParameter):
         listRteId = funcParseDisRte(strExcuteOutput)
         for rte_id in listRteId:
             if rte_id == dicParameter["ID"]:
-                return False
+                return True
     except subprocess.CalledProcessError as e:
         bResult = False
     except subprocess.TimeoutExpired:
@@ -130,7 +131,7 @@ def funcCheckValidationRmt(dicParameter):
         listRmtId = funcParseDisRmt(strExcuteOutput)
         for rmt_id in listRmtId:
             if rmt_id == dicParameter["ID"]:
-                return False
+                return True
 
     except subprocess.CalledProcessError as e:
         bResult = False
@@ -139,6 +140,7 @@ def funcCheckValidationRmt(dicParameter):
 
     return bResult
 
+# not use... DEL 시에는 필요없음.
 # DIS-SIP-LOC.py 파일을 실행하여 LOC_ID 값을 리턴한다. 하나만 리턴한다. LOC_ID 두개두지 말것...
 def funcGetSipLocId():
     nSipLocId = 0
@@ -182,10 +184,10 @@ def funcGetSipLocId():
     return bResult
 """
 
-def funcExecCrteSipRmt(strCrteSipRmtParameter):
+def funcExecDelSipRmt(strDelSipRmtParameter):
     bResult = False
     try:
-        output = subprocess.check_output(['/home/vfras/mmi/CRTE-SIP-RMT.py', strCrteSipRmtParameter], timeout=1)
+        output = subprocess.check_output(['/home/vfras/mmi/DEL-SIP-RMT.py', strDelSipRmtParameter], timeout=1)
         strExcuteOutput = output.decode('utf-8')
 
         """ 할 필요 없을듯? GUI는 자동으로 DIS 명령어를 내린다. 따라서 확인할 필요 없다.
@@ -193,7 +195,6 @@ def funcExecCrteSipRmt(strCrteSipRmtParameter):
         module_name = 'DIS-SIP-NODE'
         module = importlib.import_module(module_name)
         rmt_data, rmt_count, rmt_result = module.parse_rmt_output(strExcuteOutput)
-
         # 결과값을 확인한다.
         if "NOK" in rmt_result:
             bResult = False
@@ -209,13 +210,14 @@ def funcExecCrteSipRmt(strCrteSipRmtParameter):
 
     return bResult
 
-def funcExecCrteRte(strCrteRteParameter):
+def funcExecDelRte(strDelRteParameter):
     bResult = False
     try:
-        output = subprocess.check_output(['/home/vfras/mmi/CRTE-RTE.py', strCrteRteParameter], timeout=1)
+        output = subprocess.check_output(['/home/vfras/mmi/DEL-RTE.py', strDelRteParameter], timeout=1)
         strExcuteOutput = output.decode('utf-8')
-        
+
         """ 할 필요 없을듯? GUI는 자동으로 DIS 명령어를 내린다. 따라서 확인할 필요 없다.
+
         # DIS-SIP-NODE를 import하여 parse_rte_output함수를 실행한다.
         module_name = 'DIS-SIP-NODE'
         module = importlib.import_module(module_name)
@@ -244,6 +246,7 @@ def funcCheckParameterValidation(dicParameter):
     if "ID" not in dicParameter:
         bReturn = False
         print("ID is not in dicParameter")
+    """
     if "NAME" not in dicParameter:
         bReturn = False
         print("NAME is not in dicParameter")
@@ -256,8 +259,6 @@ def funcCheckParameterValidation(dicParameter):
     if "PERIOD" not in dicParameter:
         bReturn = False
         print("PERIOD is not in dicParameter")
-    
-    """
     # ID는 숫자만 가능하다.
     if not dicParameter["ID"].isdigit():
         return False
@@ -276,14 +277,14 @@ def funcCheckParameterValidation(dicParameter):
     """
     return bReturn
 
-def funcMakeCrteSipRmtParameter(dicParameter):
-    # 입력예시) CRTE-SIP-RMT RMT_ID=13511, NAME=SS_ICSCF_35, DOMAIN=sktims.net, IPV=IP4, IP=172.28.109.145, PORT=5164, PROTOCOL=UDP, NAT_ON=OFF, DSCP=0
-    strParameter = f" RMT_ID={dicParameter['ID']}, NAME={dicParameter['NAME']}, DOMAIN=lguplus.co.kr, IPV=IP4, IP={dicParameter['IP']}, PORT={dicParameter['PORT']}, PROTOCOL=UDP, NAT_ON=OFF, DSCP=0"
+def funcMakeDelSipRmtParameter(dicParameter):
+    # 입력예시) DEL-SIP-RMT RMT_ID=13511
+    strParameter = f"RMT_ID={dicParameter['ID']}"
     return strParameter
 
-def funcMakeCrteRteParameter(dicParameter, nSipLocId):
-    # 입력예시) CRTE-RTE RTE=13511, NAME=SS_ICSCF_35, LOC_ID=10001, RMT_ID=13511, TRTE=1, TYPE=MINE, MEDIA=ROUTED, OPT_TIME=5, RETRY=3, ACTION=ACT, SES_TIME=0, GROUP_ID=1, MAX_CNT=100000, DEACT_RSP=SEND
-    strParameter = f" RTE={dicParameter['ID']}, NAME={dicParameter['NAME']}, LOC_ID={nSipLocId}, RMT_ID={dicParameter['ID']}, TRTE=1, TYPE=MINE, MEDIA=ROUTED, OPT_TIME={dicParameter['PERIOD']}, RETRY=3, ACTION=ACT, SES_TIME=0, GROUP_ID=1, MAX_CNT=100000, DEACT_RSP=SEND"
+def funcMakeDelRteParameter(dicParameter):
+    # 입력예시) DEL-RTE RTE=13511
+    strParameter = f"RTE={dicParameter['ID']}"
     return strParameter
 
 def funcServiceRole(dicParameter):
@@ -302,23 +303,25 @@ def funcServiceRole(dicParameter):
         if bReturn == False:
             bServiceRoleFunctionResult = False
         
+        """ DELETE 시에는 확인할 필요 없어서 삭제.
         # DIS-SIP-LOC.py 파일을 실행하여 LOC_ID 값을 확인한다.
         nSipLocId = funcGetSipLocId()
         if int(nSipLocId) < 1:
             bServiceRoleFunctionResult = False
-        
+        """
+
         if (bServiceRoleFunctionResult == True):
-            # dicParameter의 값을 이용하여 CRTE-SIP-RMT.py 명령어의 parameter String을 만든다.
-            strCrteSipRmtParameter = funcMakeCrteSipRmtParameter(dicParameter)
+            # dicParameter의 값을 이용하여 DEL-SIP-RMT.py 명령어의 parameter String을 만든다.
+            strDelSipRmtParameter = funcMakeDelSipRmtParameter(dicParameter)
             # CRTE-SIP-RMT.py 파일을 실행하여 SIP RMT를 생성한다.
-            bReturn = funcExecCrteSipRmt(strCrteSipRmtParameter)
+            bReturn = funcExecDelSipRmt(strDelSipRmtParameter)
             if bReturn == False:
                 bServiceRoleFunctionResult = False
             
             # dicParameter의 값을 이용하여 CRTE-RTE.py 명령어의 parameter String을 만든다.
-            strCrteSipRteParameter = funcMakeCrteRteParameter(dicParameter, nSipLocId)
-            # CRTE-RTE.py 파일을 실행하여 RTE 를 생성한다.
-            bReturn = funcExecCrteRte(strCrteSipRteParameter)
+            strDelSipRteParameter = funcMakeDelRteParameter(dicParameter)
+            # DEL-RTE.py 파일을 실행하여 RTE 를 생성한다.
+            bReturn = funcExecDelRte(strDelSipRteParameter)
             #print("aaa", strCrteSipRteParameter, bReturn)
             if bReturn == False:
                 bServiceRoleFunctionResult = False
@@ -334,8 +337,8 @@ def funcServiceRole(dicParameter):
 
 def funcHelpPrint():
     print("help message")
-    print("ex) ADD-SIP-NODE.py ID=10001 NAME=AAAB IP=121.134.202.24 PORT=5060 PERIOD=10")
-    print("ID는 DIS-RTE.py와 DIS-SIP-RMT.py에서 확인한 ID 값과 중복되면 안됩니다.")
+    print("ex) DEL-SIP-NODE.py ID=10001")
+    print("ID는 DIS-RTE.py와 DIS-SIP-RMT.py에서 확인한 ID 값을 입력해야 합니다.")
     
     # Add the implementation of the funcHelpPrint function here
     pass
@@ -350,7 +353,7 @@ def main():
         strParameter += sys.argv[i] + " "
     
     # 실행 예제.
-    # ADD-SIP-NODE.py ID=10111 NAME=TAS#01 IP=121.134.202.234 PORT=5066 PERIOD=20
+    # DEL-SIP-NODE.py ID=10111 
     # 입력받은 parameter를 dictionary 형태의 변수로 저장한다.
     dicParameter = {}
     for i in range(1, num_args):

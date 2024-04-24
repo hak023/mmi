@@ -16,7 +16,8 @@ def run_DIS_SIP_RMT():
         output = subprocess.check_output(['/home/vfras/mmi/DIS-SIP-RMT.py'])
         return output.decode('utf-8')
     except subprocess.CalledProcessError as e:
-        logger.error("Error running DIS-SIP-RMT.py:", e)
+        print("Error running DIS-SIP-RMT.py:", e)
+        #logger.error("Error running DIS-SIP-RMT.py:", e)
         return None
 
 #not use.
@@ -25,7 +26,8 @@ def run_DIS_RTE():
         output = subprocess.check_output(['/home/vfras/mmi/DIS-RTE.py'])
         return output.decode('utf-8')
     except subprocess.CalledProcessError as e:
-        logger.error("Error running DIS-SIP-RMT.py:", e)
+        print("Error running DIS-SIP-RMT.py:", e)
+        #logger.error("Error running DIS-SIP-RMT.py:", e)
         return None
 
 def parse_loc_output(output):
@@ -185,6 +187,7 @@ def main_pre():
     
     result_json = json.dumps(result_data, indent=4)
     print(result_json)
+    #logger.info(result_json)
 
 def funcParseLocAndRmtAndRte(strDisSipLocResult, strDisSipRmtResult, strDisRteResult):
     result_data = {}
@@ -233,6 +236,7 @@ def funcParseLocAndRmtAndRte(strDisSipLocResult, strDisSipRmtResult, strDisRteRe
     #result_json = json.dumps(result_data, indent=4)
     result_json = json.dumps(sorted_data, indent=4)
     print(result_json)
+    #logger.info(result_json)
     return
 
 # not use.

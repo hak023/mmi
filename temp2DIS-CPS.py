@@ -28,8 +28,9 @@ def test():
     output_data = {"collectTime": formatted_time}
     output_data.update({"servers": data})
 
-    logger.info(json.dumps(output_data, indent=4))
-
+    json_dumps = json.dumps(output_data, indent=4)
+    #logger.info(json_dumps)
+    print(json_dumps)
 
 def funcExecMmiRemote(strServerName):
     nReturnValue = 0
@@ -60,7 +61,8 @@ def funcEmsRole():
     output_data.update({"servers": data})
 
     output_json = json.dumps(output_data, indent=4)
-    logger.info(output_json)
+    #logger.info(output_json)
+    print(output_json)
 
     return
 
@@ -99,7 +101,8 @@ def funcServiceRole():
         #for test.
         strMakeResult = '{"total": 10000, "current": 9876}'
 
-    logger.info(strMakeResult)
+    #logger.info(strMakeResult)
+    print(strMakeResult)
     return
 
     #for test.

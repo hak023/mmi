@@ -24,7 +24,8 @@ def main(argv=None):
         _client.connect()
         
         if _DEBUG :
-            logger.info( "Processing command : ", _command)
+            #logger.info( "Processing command : ", _command)
+            print( "Processing command : ", _command)
 
         _client.sendMessage(_command)
         
@@ -32,26 +33,31 @@ def main(argv=None):
             _response = _client.readMessage()
             
             if _DEBUG :
-                logger.info( "Response is ", _response)
+                #logger.info( "Response is ", _response)
+                print( "Response is ", _response)
                 
             if _command == "status" :
-                logger.info(parseStatusCode(_response))
+                #logger.info(parseStatusCode(_response))
+                print(parseStatusCode(_response))
             else :
                 _command _response
         
         return 0
     except Exception as e:
-        logger.error( e)
+        #logger.error( e)
+        print(e)
 	return -1
         
     finally :
         if _DEBUG :
-            logger.info( "Closing socket...")
+            #logger.info( "Closing socket...")
+            print( "Closing socket...")
             
         _client.close()
         
         if _DEBUG :
-            logger.info( "Closed")
+            #logger.info( "Closed")
+            print( "Closed")
 
 if __name__ == "__main__":
     sys.exit(main())

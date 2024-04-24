@@ -30,7 +30,9 @@ def test():
     output_data = {"collectTime": formatted_time}
     output_data.update({"servers": data})
 
-    logger.info(json.dumps(output_data, indent=4))
+    json_dumps = json.dumps(output_data, indent=4)
+    #logger.info(json_dumps)
+    print(json_dumps)
 
 # funcExecMmiRemote 함수는 주어진 서버 이름에 대해 원격으로 MMI 명령을 실행합니다.
 def funcExecMmiRemote(strServerName):
@@ -61,9 +63,10 @@ def funcEmsRole():
     output_data.update({"servers": data})
 
     output_json = json.dumps(output_data, indent=4)
-    logger.info(output_json)
+    #logger.info(output_json)
+    print(output_json)
 
-    return
+    #return output_json
 
 # funcParseDisSipEnvCps 함수는 DIS-SIP-ENV.py 스크립트의 출력에서 CPS 값을 추출합니다.
 def funcParseDisSipEnvCps(strDisSipEnvResult):
@@ -103,7 +106,8 @@ def funcServiceRole():
         #for test.
         nCps = 88
 
-    logger.info(nCps)
+    #logger.info(nCps)
+    print(nCps)
     return
 
 # main 함수는 프로그램의 주 실행 루틴입니다.

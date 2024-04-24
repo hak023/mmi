@@ -24,8 +24,9 @@ def test():
     output_data = {"collectTime": formatted_time}
     output_data.update({"servers": data})
 
-    logger.info(json.dumps(output_data, indent=4))
-
+    json_dumps=json.dumps(output_data, indent=4)
+    #logger.info(json_dumps))
+    print(json_dumps)
 
 def funcExecMmiRemote(strServerName):
     nTotal = 0
@@ -34,10 +35,12 @@ def funcExecMmiRemote(strServerName):
     try:
         result = funcExecRemote.funcExecRemote(strServerName,"SIP-ALL-DEACT.py","all")
     except subprocess.TimeoutExpired as e:
-        logger.error("Command execution timed out : ", e)
+        #logger.error("Command execution timed out : ", e)
+        print("Command execution timed out : ", e)
         result = "Failed"
     except Exception as e:
-        logger.error(e)
+        #logger.error(e)
+        print(e)
         result = "Failed"
 
     if "bash" in result:
@@ -49,21 +52,25 @@ def funcExecMmiRemote(strServerName):
 
     return nReturnValue 
 
-def funcEmsRole():
+def funcEmsRole(strRemoteServerName):
     listServer = ["CP01", "CP02"]
+
+    #listServer 에서 문자열 검색하여 strRemoteServerName가 존재하는지 확인한다.
+    if strRemoteServerName not in listServer:
+        #logger.error(f"impossible server name : {strRemoteServerName}")
+        print(f"impossible server name : {strRemoteServerName}")
+        return
+
     data = []
     bExecRemoteResult = False
     strExecRemoteResult = ""
-    for strServer in listServer: 
-        strServerExecResult = funcExecMmiRemote(strServer)
-        if "Failed" in strServerExecResult["result"]:
-            bExecRemoteResult = False
-        else:
-            bExecRemoteResult = True
-        data.append(strServerExecResult)
-        #strCpServerResult = funcExecMmiRemote(strServer)
-        #data.append({"server": strServer, "cps": strCpServerResult.strip("\n")})
-
+    strServerExecResult = funcExecMmiRemote(strRemoteServerName)
+    if "Failed" in strServerExecResult["result"]:
+        bExecRemoteResult = False
+    else:
+        bExecRemoteResult = True
+    data.append(strServerExecResult)
+    
     if bExecRemoteResult == True:
         strExecRemoteResult = "Success"
     else:
@@ -76,7 +83,8 @@ def funcEmsRole():
     output_data.update({"result": strExecRemoteResult})
 
     output_json = json.dumps(output_data, indent=4)
-    logger.info(output_json)
+    #logger.info(output_json)
+    print(output_json)
 
     return
 
@@ -106,7 +114,8 @@ def funcRteSetAllDeact():
         strExcuteOutput = output.decode('utf-8')
         listRteId = funcParseDisRte(strExcuteOutput)
         for rte_id in listRteId:
-            logger.info(rte_id)
+            #logger.info(rte_id)
+            print(rte_id)
             subprocess.check_output(['/home/vfras/mmi/CHG-RTE.py', f'RTE={rte_id}, ACTION=DEACT'], timeout=1)
         bResult = True
     except subprocess.CalledProcessError as e:
@@ -130,6 +139,8 @@ def funcServiceRole():
     return
 
 def funcHelpPrint():
+    print("SIP-ALL-DEACT.py help page.")
+    print("Usage ex) SIP-ALL-DEACT.py SERVER=CP01")
     # Add the implementation of the funcHelpPrint function here
     pass
 
@@ -140,18 +151,35 @@ def main():
 
 
     if num_args < 2:
-        #print("Usage: DIS-CPS.py [servername=CP]    << ex)CP, CP01, AS, AS01, AS02 ...")
+        #print("Usage: DIS-SERVICE-STS.py [service=ASFR]    << ex)ASFR, Myview ...")
         pass
     else:
         strParameter = sys.argv[1]
+    strParameter.upper()
 
+    if "=" in strParameter:
+        strParameterName, strParameterValue = strParameter.split('=')
+        if strParameterName == "SERVER":
+            strRemoteServerName = strParameterValue
+        else:
+            funcHelpPrint()
+            return
+        
+        # strParameterValue 에 아무것도 없을때.
+        if len(strParameterValue) < 1 :
+            funcHelpPrint()
+            return
+    else:
+        funcHelpPrint()
+        return
+    
     if "help" in strParameter:
         funcHelpPrint()
         return
 
     strMyServerName = funcGetMyServerName()
     if strMyServerName is not None and "EMS" in strMyServerName:
-        funcEmsRole()
+        funcEmsRole(strRemoteServerName)
     else:
         funcServiceRole()
 

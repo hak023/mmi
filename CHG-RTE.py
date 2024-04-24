@@ -31,4 +31,5 @@ RESULT     = OK
 
 """
 
-logger.info(test_data)
+#logger.info(test_data)
+print(test_data)

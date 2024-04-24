@@ -16,7 +16,8 @@ logger=funcGetLogger()
 #server : choose server name. ex) "AS", "CP"...
 def funcExecRemote(server, script_file_name, target):
     config = configparser.ConfigParser()
-    config.read('conf/info.cfg')
+    config.read('/home/vfras/mmi/conf/info.cfg')
+
     strRemoteTagetList = []
     strReturn = "" 
 
@@ -94,7 +95,8 @@ def test():
     # ������� ���   execut
     #execute_remote_script(server, port, username, password, script_path)
     result = funcExecRemote("CP","DIS-SIP-RMT.py","active")
-    logger.info(result) 
+    #logger.info(result) 
+    print(result)
 
 def main():
     test()

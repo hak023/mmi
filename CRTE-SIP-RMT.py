@@ -12,18 +12,17 @@ test_data = """Recv End
 
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 [INPUT]
-COMMAND    = DIS-SIP-RMT
+COMMAND    = CRTE-SIP-RMT
 
-             DISPLAY REMOTE SIP SERVER
+             CREATE REMOTE SIP SERVER
 
 
 [OUTPUT]
          RMT_ID                      NAME               DOAMIN   IPV                             IP    PORT   PROTOCOL  NAT_ON   DSCP     STATUS
          ---------------------------------------------------------------------------------------------------------------------------------------
           10111               SS_ICSCF_01           sktims.net  IPv4                220.103.220.210    5064        UDP     OFF      0      AVAIL
-          10112              SS_OPTION_01           sktims.net  IPv4                220.103.220.210    3013        UDP     OFF      0      AVAIL
 
-RMT_CNT    = 2
+RMT_CNT    = 1
 
 RESULT     = OK
 

@@ -4,9 +4,6 @@
 import sys
 import datetime
 import os
-from Logger import funcGetLogger
-
-logger=funcGetLogger()
 
 def funcMmiDisHa(listArgv):
     strInputCommand = " ".join(listArgv)

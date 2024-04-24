@@ -8,6 +8,7 @@ import subprocess
 import funcExecRemote
 from funcHostName import funcGetMyServerName
 from Logger import funcGetLogger
+import funcIpcShm
 
 logger=funcGetLogger()
 
@@ -23,7 +24,9 @@ def test():
     output_data = {"collectTime": formatted_time}
     output_data.update({"servers": data})
 
-    logger.info(json.dumps(output_data, indent=4))
+    json_dumps=json.dumps(output_data, indent=4)
+    #logger.info(json_dumps)
+    print(json_dumps)
 
 #strServerName ex)CP01, CP02, AS01, AS ...
 #strProcess ex) Myview, ASFR
@@ -37,7 +40,8 @@ def funcExecMmiRemote(strServerName, strService, strStatus):
     try:
         result = funcExecRemote.funcExecRemote(strServerName,"DIS-SERVICE-STS.py " + strArgument, strStatus)
         if "bash" in result:
-            logger.info(result)
+            #logger.info(result)
+            print(result)
             nTotal, nCurrent = 0, 0
         elif len(result) < 1:
             nTotal, nCurrent = 0, 0 
@@ -53,10 +57,9 @@ def funcExecMmiRemote(strServerName, strService, strStatus):
     return nReturnValue 
 
 def funcEmsRole():
-    listServer = ["AS01", "AS02", "CP01", "CP02", "DS"]
-    listAsService = ["ASFR", "Myview"]
-    strServiceName = ""
+    listServer = ["AS00", "AS01", "CP00", "CP01", "DS"]
     #listAsService = ["ASFR", "Myview"]
+    strServiceName = ""
     data = []
     for strServer in listServer:
         #if AS server then, select Service.
@@ -69,7 +72,7 @@ def funcEmsRole():
 #            for strAsService in listAsService:
 #                nServerExecResult = funcExecMmiRemote(strServer, strAsService, "all")
 #                data.append(nServerExecResult)
-        else:
+        elif "DS" in strServer:
             strServiceName = "IFSVR"
             nServerExecResult = funcExecMmiRemote(strServer, strServiceName, "active")
         data.append(nServerExecResult)
@@ -81,15 +84,42 @@ def funcEmsRole():
     output_data.update({"servers": data})
 
     output_json = json.dumps(output_data, indent=4)
-    logger.info(output_json)
+    #logger.info(output_json)
+    print(output_json)
 
     return
 
 def funcServiceRole(strRemoteServiceName):
-    strMakeData = f'{{"service": "{strRemoteServiceName}", "total": 10000, "current": 9876}}'
+    dictionary = {}
+    strMakeData = {}
+    nTotal, nSuccess = 0, 0
+    # strRemoteServiceName 이 ASFR 인 경우
+    if "ASFR" in strRemoteServiceName:
+        dictionary = funcIpcShm.funcReadAsAsfrStatusShm()
+        # dictionary 형태의 데이터를 추출하여 strMakeData를 만든다.
+        # dictionary 중 Audio_Total 를 가져온다.
+        nTotal  = dictionary['Audio_Total'] + dictionary['Video_Total']
+        nSuccess = dictionary['Audio_Success'] + dictionary['Video_Success']
+    # strRemoteServiceName 이 MYVIEW 인 경우
+    elif "MYVIEW" in strRemoteServiceName:
+        dictionary = funcIpcShm.funcReadCpSvifStatusShm()
+        # dictionary 형태의 데이터를 추출하여 strMakeData를 만든다.
+        # dictionary 중 Audio_Total 를 가져온다.
+        nTotal  = dictionary['Total']
+        nSuccess = dictionary['Success']
+    # strRemoteServiceName 이 IFSVR 인 경우
+    elif "IFSVR" in strRemoteServiceName:
+        dictionary = funcIpcShm.funcReadDsIfsyncStatusShm()
+        # dictionary 형태의 데이터를 추출하여 strMakeData를 만든다.
+        # dictionary 중 Audio_Total 를 가져온다.
+        nTotal  = dictionary['Total']
+        nSuccess = dictionary['Success']
+
+    strMakeData = f'{{"service": "{strRemoteServiceName}", "total": {nTotal}, "current": {nSuccess}}}'
  
     #for test.
-    logger.info(strMakeData)
+    #logger.info(strMakeData)
+    print(strMakeData)
     return
 
 def main():

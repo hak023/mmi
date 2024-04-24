@@ -97,14 +97,19 @@ def main():
     active_result_list = funcGetServerActive(objDb, "AS")
     
     ha_status_result = funcGetHaStatus(objDb)
-    logger.info(ha_status_result)
+    #logger.info(ha_status_result)
+    print(ha_status_result)    
 
-    logger.info("Number of items in result_list:", len(result_list))
+    #logger.info("Number of items in result_list:", len(result_list))
+    print("Number of items in result_list:", len(result_list))
     for item in result_list:
-        logger.info("IP:", item)
-    logger.info("Number of items in active_result_list:", len(active_result_list))
+        #logger.info("IP:", item)
+        print("IP:", item)
+    #logger.info("Number of items in active_result_list:", len(active_result_list))
+    print("Number of items in active_result_list:", len(active_result_list))
     for item in active_result_list:
-        logger.info("IP:", item)
+        #logger.info("IP:", item)
+        print("IP:", item)
     funcDisConnectDB(objDb)
 
 if __name__ == "__main__":

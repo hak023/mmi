@@ -10,6 +10,9 @@ from funcHostName import funcGetMyServerName
 import re
 import importlib
 import funcMmiPrint
+from Logger import funcGetLogger
+
+logger=funcGetLogger()
 
 # 파일 경로
 file_path = "/home/vfras/config/MPRM/mp_block.cmd"
@@ -35,10 +38,13 @@ def funcReadMpBlockFile():
                 funcDataBlockProcessForOneLine(mpa_code)
     except FileNotFoundError:
         print(f"{file_path} 파일을 찾을 수 없습니다.")
+        #logger.error(f"{file_path} 파일을 찾을 수 없습니다.")
     except PermissionError:
         print(f"{file_path} 파일을 읽을 권한이 없습니다.")
+        #logger.error(f"{file_path} 파일을 읽을 권한이 없습니다.")
     except Exception as e:
         print(f"파일 처리 중 에러가 발생했습니다: {e}")
+        #logger.error(f"파일 처리 중 에러가 발생했습니다: {e}")
     return
 
 # strId ex) 1,3,22
@@ -52,6 +58,7 @@ def funcAddMpBlockToFile(strId):
             for item in data:
                 if item['id'] == id:
                     print(f"ID = {item['id']}    {item['block']} -> BLOCKED")
+                    #logger.info(f"ID = {item['id']}    {item['block']} -> BLOCKED")
                     item['block'] = 'BLOCKED'
                     break
 
@@ -63,10 +70,13 @@ def funcAddMpBlockToFile(strId):
 
     except FileNotFoundError:
         print(f"{file_path} 파일을 찾을 수 없습니다.")
+        #logger.error(f"{file_path} 파일을 찾을 수 없습니다.")
     except PermissionError:
         print(f"{file_path} 파일을 작성할 권한이 없습니다.")
+        #logger.error(f"{file_path} 파일을 작성할 권한이 없습니다.")
     except Exception as e:
         print(f"파일 처리 중 에러가 발생했습니다: {e}")
+        #logger.error(f"파일 처리 중 에러가 발생했습니다: {e}")
     return
 
 def funcDataBlockProcessForOneLine(strMpaBlockConfigOneLine):
@@ -111,9 +121,12 @@ def funcExecMmiRemote(strServerName, strParameter):
     nCurrent = 0
     result = ""
     try:
+        print("aaa", strServerName, strParameter, result)
         result = funcExecRemote.funcExecRemote(strServerName,"SET-MPA-BLOCK.py " + strParameter, "active")
+        print("aaa", strServerName, strParameter, result)
         if "bash" in result:
             print("error: ", result)
+            #logger.error(f"error: {result}")
         elif len(result) < 1:
             # nothing work.
             pass
@@ -123,6 +136,7 @@ def funcExecMmiRemote(strServerName, strParameter):
             pass
     except Exception as e:
         print("error: ", e)
+        #logger.error(f"error: {e}")
 
     return result
 
@@ -138,7 +152,7 @@ def funcEmsRole(strParameter):
     # MPA BLOCK을 처리하기 위한 기초 데이터를 만든다.
     funcDataInitialize()
 
-    listServer = ["AS01"]
+    listServer = ["AS00"]
     strMpaBlockConfig = ""
     for strServer in listServer: 
         funcExecMmiRemote(strServer, strParameter)

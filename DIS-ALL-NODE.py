@@ -7,6 +7,7 @@ from funcHostName import funcGetMyServerName
 import funcExecRemote
 import sys
 from Logger import funcGetLogger
+import funcIpcShm
 
 logger=funcGetLogger()
 
@@ -192,10 +193,23 @@ def funcExecMmiDisRte(strServerName):
     result = funcExecRemote.funcExecRemote(strServerName,"DIS-RTE.py","all")
     return result
 
+# funcExecMmiRemote 함수는 주어진 서버 이름에 대해 원격으로 MMI 명령을 실행합니다.
+def funcExecMmiRemote(strServerName):
+    strResult = ""
+    try:
+        strResult = funcExecRemote.funcExecRemote(strServerName,"DIS-ALL-NODE.py", "all")
+    except Exception as e:
+        strResult = ""
+    return strResult 
+
 def funcEmsRole(strRemoteServerName):
-    listServer = ["CP00", "CP01"]
+    listServer = ["CP00", "CP01", "DS00"] # 추후 DS00 -> DS로 바꿔주세요. 현재 TB 상황상 테스트 함.
     sorted_data = []
+    # SIP 서버에 대한 정보를 가져옵니다.
     for strServer in listServer: 
+        # DS 서버는 skip.
+        if "DS" in strServer:
+            continue
         strLocResult = funcExecMmiDisSipLoc(strServer)
         strRmtResult = funcExecMmiDisSipRmt(strServer)
         strRteResult = funcExecMmiDisRte(strServer)
@@ -203,9 +217,22 @@ def funcEmsRole(strRemoteServerName):
         
         for data in merged_data:
             sorted_data.append(data)
+    
+    # shm 봐야하는 애들. DS서버의 IFSYNC와 CP서버의 SVIF 프로세스.
+    # 동일한 python을 실행해서 서버 이름에 맞는 job을 수행한다.
+    for strServer in listServer: 
+        strExecReturn = funcExecMmiRemote(strServer)
+        try:
+            # strExecReturn는 json형태의 string이다. 따라서 json으로 읽어들이자.
+            dicServerExecResult = json.loads(str(strExecReturn))
+            print("dicServerExecResult: ", dicServerExecResult)
+            sorted_data.append(dicServerExecResult)
+        except json.JSONDecodeError:
+            # strExecReturn 값이 JSON 형식이 아닐 경우 이 부분이 실행됩니다.
+            pass
 
     #sort to "STATUS UNAVAIL First."
-    sorted_data = sorted(sorted_data, key=lambda x: x["STATUS"], reverse=True)
+    #sorted_data = sorted(sorted_data, key=lambda x: x["STATUS"], reverse=True)
 
     result_json = json.dumps(sorted_data, indent=4)
 
@@ -213,8 +240,31 @@ def funcEmsRole(strRemoteServerName):
 
     return
 
-def funcServiceRole():
-    #nothing.
+def funcServiceRole(strMyServerName):
+    dicServerExecResult = {}
+    if "DS" in strMyServerName:
+        # shm 를 확인해서 json 형태로 print하자.
+        dicServerExecResult = funcIpcShm.funcReadDsIfSyncConnectShm()
+        # dicServerExecResult에 일부 값을 추가하자.
+        dicServerExecResult["TYPE"] = "IFSYNC"
+        dicServerExecResult["SERVER"] = strMyServerName
+        dicServerExecResult["NAME"] = strMyServerName + "-IFSYNC"
+        dicServerExecResult["ACTION"] = "ACT"
+        #dictionary를 json으로 변환하여 출력한다.
+        result_json = json.dumps(dicServerExecResult, indent=4)
+        print(result_json)
+    elif "CP" in strMyServerName:
+        # shm 를 확인해서 json 형태로 print하자.
+        dicServerExecResult = funcIpcShm.funcReadCpSvifConnectShm()
+        # dicServerExecResult에 일부 값을 추가하자.
+        dicServerExecResult["TYPE"] = "MYVIEW"
+        dicServerExecResult["SERVER"] = strMyServerName
+        dicServerExecResult["NAME"] = strMyServerName + "-IFSYNC"
+        dicServerExecResult["ACTION"] = "ACT"
+        #dictionary를 json으로 변환하여 출력한다.
+        result_json = json.dumps(dicServerExecResult, indent=4)
+        print(result_json)
+
     return
 
 def funcHelpPrint():
@@ -245,7 +295,7 @@ def main():
     if strMyServerName is not None and "EMS" in strMyServerName:
         funcEmsRole(strRemoteServerName)
     else:
-        funcServiceRole()
+        funcServiceRole(strMyServerName)
 
 if __name__ == "__main__":
     main()

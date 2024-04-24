@@ -11,6 +11,9 @@ import funcMmiPrint
 import time
 import importlib
 import funcExecRemote
+from Logger import funcGetLogger
+
+logger=funcGetLogger()
 
 def test():
     return
@@ -24,10 +27,12 @@ def funcExecMmiRemote(strServerName):
         result = funcExecRemote.funcExecRemote(strServerName,"SW-HA.py","active")
         if "bash" in result:
             print(result)
+            #logger.info(result)
         else:
             nReturnValue = "success"
     except Exception as e:
         print("error : ", e) 
+        #logger.error(f"error: {e}")
 
     return nReturnValue 
 
@@ -45,12 +50,15 @@ def funcHaSelfDeact():
 
 def funcServiceRole():
     print("SEND MESSAGE SWAP COMMAND...")       
+    #logger.info("SEND MESSAGE SWAP COMMAND...")
     strResult = funcHaSelfDeact()
     if "success" in strResult: 
         time.sleep(1) 
         print("SWAP COMMAND SEND SUCCESS")
+        #logger.info("SWAP COMMAND SEND SUCCESS")
     else:
         print("SWAP COMMAND SEND FAIL")
+        #logger.error("SWAP COMMAND SEND FAIL")
     return
 
 def funcHelpPrint():

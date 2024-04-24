@@ -22,7 +22,9 @@ def test():
     output_data = {"collectTime": formatted_time}
     output_data.update({"servers": data})
 
-    logger.info(json.dumps(output_data, indent=4))
+    json_dump=json.dumps(output_data, indent=4)
+    logger.info(json_dump)
+    print(json_dump)
     return
 
 def funcServiceRole(strRemoteServiceName):
@@ -37,10 +39,13 @@ def funcEmsRole():
     objDb = funcDbInfo.funcConnectDB()
     ha_status_result = funcDbInfo.funcGetHaStatus(objDb)
     
-    logger.info("%-16s %-16s" % ("SERVER", "STATUS"))
-    logger.info("----------------------------")
+    #logger.info("%-16s %-16s" % ("SERVER", "STATUS"))
+    #logger.info("----------------------------")
+    print("%-16s %-16s" % ("SERVER", "STATUS"))
+    print("----------------------------")
     for result_one_line in ha_status_result:
-        logger.info("%-16s %-16s" % (result_one_line[0], result_one_line[1]))
+        #logger.info("%-16s %-16s" % (result_one_line[0], result_one_line[1]))
+        print("%-16s %-16s" % (result_one_line[0], result_one_line[1]))
     return
 
 def main():
