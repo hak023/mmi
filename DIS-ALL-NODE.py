@@ -141,6 +141,9 @@ def funcDataMerge(rte_data, loc_data, rmt_data, strServer):
 
 def funcParseLocAndRmtAndRte(strDisSipLocResult, strDisSipRmtResult, strDisRteResult, strServer):
     result_data = {}
+    loc_data = []
+    rmt_data = []
+    rte_data = []
     if strDisSipLocResult:
         loc_data, loc_count, loc_result = parse_loc_output(strDisSipLocResult)
         if loc_data:
@@ -214,7 +217,6 @@ def funcEmsRole(strRemoteServerName):
         strRmtResult = funcExecMmiDisSipRmt(strServer)
         strRteResult = funcExecMmiDisRte(strServer)
         merged_data = funcParseLocAndRmtAndRte(strLocResult, strRmtResult, strRteResult, strServer)
-        
         for data in merged_data:
             sorted_data.append(data)
     
@@ -225,14 +227,14 @@ def funcEmsRole(strRemoteServerName):
         try:
             # strExecReturn는 json형태의 string이다. 따라서 json으로 읽어들이자.
             dicServerExecResult = json.loads(str(strExecReturn))
-            print("dicServerExecResult: ", dicServerExecResult)
+            #print("dicServerExecResult: ", dicServerExecResult)
             sorted_data.append(dicServerExecResult)
         except json.JSONDecodeError:
             # strExecReturn 값이 JSON 형식이 아닐 경우 이 부분이 실행됩니다.
             pass
 
     #sort to "STATUS UNAVAIL First."
-    #sorted_data = sorted(sorted_data, key=lambda x: x["STATUS"], reverse=True)
+    sorted_data = sorted(sorted_data, key=lambda x: x["STATUS"], reverse=True)
 
     result_json = json.dumps(sorted_data, indent=4)
 

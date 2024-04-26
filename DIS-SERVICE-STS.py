@@ -57,25 +57,26 @@ def funcExecMmiRemote(strServerName, strService, strStatus):
     return nReturnValue 
 
 def funcEmsRole():
-    listServer = ["AS00", "AS01", "CP00", "CP01", "DS"]
-    #listAsService = ["ASFR", "Myview"]
+    listServer = ["AS00", "AS01", "CP00", "CP01", "DS00"]
+    listAsServerType = ["ASFR"]
+    listCpServerType = ["MYVIEW"]
+    listDsServerType = ["IFSVR"]
     strServiceName = ""
     data = []
+
     for strServer in listServer:
-        #if AS server then, select Service.
         if "AS" in strServer:
-            strServiceName = "ASFR"
-            nServerExecResult = funcExecMmiRemote(strServer, strServiceName, "all")
-        elif "CP" in strServer:
-            strServiceName = "MYVIEW"
-            nServerExecResult = funcExecMmiRemote(strServer, strServiceName, "all")
-#            for strAsService in listAsService:
-#                nServerExecResult = funcExecMmiRemote(strServer, strAsService, "all")
-#                data.append(nServerExecResult)
+            for strType in listAsServerType:
+                nServerExecResult = funcExecMmiRemote(strServer, strType, "all")
+                data.append(nServerExecResult)
+        if "CP" in strServer:
+            for strType in listCpServerType:
+                nServerExecResult = funcExecMmiRemote(strServer, strType, "all")
+                data.append(nServerExecResult)
         elif "DS" in strServer:
-            strServiceName = "IFSVR"
-            nServerExecResult = funcExecMmiRemote(strServer, strServiceName, "active")
-        data.append(nServerExecResult)
+            for strType in listDsServerType:
+                nServerExecResult = funcExecMmiRemote(strServer, strType, "all")
+                data.append(nServerExecResult)
 
     now = datetime.datetime.now()
     formatted_time = now.strftime("%Y-%m-%dT%H:%M:%S")

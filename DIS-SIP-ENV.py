@@ -1,41 +1,48 @@
-#!/bin/python3 -tt
-# -*- coding: utf-8 -*-
+#!/bin/python2.7 -tt
 
-import json
-from Logger import funcGetLogger
+from struct import unpack
+from collections import namedtuple
 
-logger=funcGetLogger()
-
-# 입력 데이터 예시
-test_data = """Recv End
------------------------------------------
-
->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-[INPUT]
-COMMAND    = DIS-SIP-ENV
-
-             DISPLAY SIP ENVIRONMENT
+from mmi.cmd import *
+from mmi.ibcf import *
+from cls.env_cls import *
 
 
-[OUTPUT]
-                     ITEM           CURRENT               MAX    OVERLOAD_CHECK
-        -----------------------------------------------------------------------
-              SES(Number)                33             90000               N/A
-              CPS(Number)                44               500               OFF
-              TPS(Number)                 0               100               OFF
-                   CPU(%)                19                80               OFF
-                   MEM(%)                19                10               OFF
-                MSG(byte)               N/A              4000    CTRL_RELAY_TCP
+class DIS_SIP_ENV(EnvCommand):
+    
+    def __init__(self):
+        EnvCommand.__init__(self, MSG_EMS_CS_DIS_ENV_REQ(), MSG_EMS_CS_DIS_ENV_RSP())
 
-                     ITEM              EMER             AUDIO             VIDEO    OVERLOAD_CHECK
-        -----------------------------------------------------------------------------------------
-        CPS_CLASS(Number)                 1                 3                 2               OFF
+    def printInputMessage(self, imsg):
+        print ""
 
-RESULT     = OK
+class UsageException(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+        
+def main(argv=None):
 
-COMPLETED - IBC53 2024-03-27 11:31:49.794
+    cmd = DIS_SIP_ENV()
+    opts, args = cmd.getopt(sys.argv[1:])
+    
+    if len(opts) > 0:
+       cmd.processOptions(opts)
+       return 0
+        
+    try:
+       args = cmd.validateArgs(args)
 
-"""
+       cmd.request.m_nSort_type = 0
+       cmd.request.m_nBegin = 0
+       cmd.request.m_nEnd = 0
+       cmd.isIdxSearch = 0
+       cmd.request.m_szKey = ""
 
-#logger.info(test_data)
-print(test_data)
+       cmd.execute(cmd.response.getSize())
+
+    except Exception, e:
+        cmd.printExcecption(e)
+        return 2
+
+if __name__ == "__main__":
+    sys.exit(main())

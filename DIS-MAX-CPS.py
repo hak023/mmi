@@ -103,15 +103,23 @@ def funcEmsRole(strParameter):
         if "CP" in strServer:
             if "SIP" in strParameter or "MYVIEW" in strParameter:
                 strExecReturn = funcExecMmiRemote(strServer, strParameter)
-                # strExecReturn json형태이다. 따라서 json.loads를 사용하여 dictionary로 변환한다.
-                dicServerExecResult = json.loads(str(strExecReturn))        
-                data.append(dicServerExecResult)
+                try:
+                    # strExecReturn json형태이다. 따라서 json.loads를 사용하여 dictionary로 변환한다.
+                    dicServerExecResult = json.loads(str(strExecReturn))        
+                    data.append(dicServerExecResult)
+                except json.JSONDecodeError:
+                    # strExecReturn 값이 JSON 형식이 아닐 경우 이 부분이 실행됩니다.
+                    pass
         elif "DS" in strServer:
             if "IFSVR" in strParameter:
                 strExecReturn = funcExecMmiRemote(strServer, strParameter)
-                # strExecReturn json형태이다. 따라서 json.loads를 사용하여 dictionary로 변환한다.
-                dicServerExecResult = json.loads(str(strExecReturn))        
-                data.append(dicServerExecResult)
+                try:
+                    # strExecReturn json형태이다. 따라서 json.loads를 사용하여 dictionary로 변환한다.
+                    dicServerExecResult = json.loads(str(strExecReturn))        
+                    data.append(dicServerExecResult)
+                except json.JSONDecodeError:
+                    # strExecReturn 값이 JSON 형식이 아닐 경우 이 부분이 실행됩니다.
+                    pass
 
     now = datetime.datetime.now()
     formatted_time = now.strftime("%Y-%m-%dT%H:%M:%S")

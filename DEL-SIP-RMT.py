@@ -1,34 +1,48 @@
-#!/bin/python3 -tt
-# -*- coding: utf-8 -*-
+#!/bin/python2.7 -tt
 
-import json
-from Logger import funcGetLogger
+from struct import unpack
+from collections import namedtuple
 
-logger=funcGetLogger()
-
-# 입력 데이터 예시
-test_data = """Recv End
------------------------------------------
-
->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-[INPUT]
-COMMAND    = CRTE-SIP-RMT
-
-             CREATE REMOTE SIP SERVER
+from mmi.cmd import *
+from mmi.ibcf import *
+from cls.sip_rmt_cls import *
 
 
-[OUTPUT]
-         RMT_ID                      NAME               DOAMIN   IPV                             IP    PORT   PROTOCOL  NAT_ON   DSCP     STATUS
-         ---------------------------------------------------------------------------------------------------------------------------------------
-          10111               SS_ICSCF_01           sktims.net  IPv4                220.103.220.210    5064        UDP     OFF      0      AVAIL
+class DEL_SIP_RMT(IbcfCommand):
+    
+    def __init__(self):
+        IbcfCommand.__init__(self, MSG_EMS_CS_DEL_RMT_REQ(), MSG_EMS_CS_DEL_RMT_RSP())
+     
+    def printInputMessage(self, imsg):
+        print ""
+        print "\t" "%12s = %d" % ('RMT_ID', imsg.m_nId)
 
-RMT_CNT    = 1
+    def printOutputMessage(self, omsg):
+        pass
 
-RESULT     = OK
 
-COMPLETED - VIBCF61 2018-11-14 15:31:41.515
+class UsageException(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+        
+def main(argv=None):
 
-"""
+    cmd = DEL_SIP_RMT()
+    opts, args = cmd.getopt(sys.argv[1:])
+    
+    if len(opts) > 0:
+       cmd.processOptions(opts)
+       return 0
+        
+    try:
+       args = cmd.validateArgs(args)
+       cmd.request.m_nId = int(args[0])
 
-print(test_data)
-#logger.info(test_data)
+       cmd.execute(cmd.response.getSize())
+
+    except Exception, e:
+        cmd.printExcecption(e)
+        return 2
+
+if __name__ == "__main__":
+    sys.exit(main())

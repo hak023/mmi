@@ -1,34 +1,62 @@
-#!/bin/python3 -tt
-# -*- coding: utf-8 -*-
+#!/bin/python2.7 -tt
 
-import json
-from Logger import funcGetLogger
+from struct import unpack
+from collections import namedtuple
 
-logger=funcGetLogger()
+from mmi.cmd import *
+from mmi.ibcf import *
+from cls.rte_cls import *
+              
 
-# 입력 데이터 예시
-test_data = """Recv End
------------------------------------------
+class CRTE_RTE(SipRteCommand):
+    
+    def __init__(self):
+        SipRteCommand.__init__(self, MSG_EMS_CS_ADD_RTE_REQ(), MSG_EMS_CS_ADD_RTE_RSP())
 
->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-[INPUT]
-COMMAND    = CRTE-RTE
+class UsageException(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+        
+def main(argv=None):
 
-             CREATE ROUTE
+    cmd = CRTE_RTE()
+    opts, args = cmd.getopt(sys.argv[1:])
+    
+    if len(opts) > 0:
+       cmd.processOptions(opts)
+       return 0
+        
+    try:
+       args = cmd.validateArgs(args)
+       
+       cmd.request.m_uiID = int(args[0])
+       cmd.request.m_szDesc = args[1]
+       cmd.request.m_uiLID = int(args[2])
+       cmd.request.m_uiRID = int(args[3])
+       cmd.request.m_uiTRTE = int(args[4])
+       cmd.request.m_ucType = int(cmd.reprRteTypeStrToInt(args[5]))
+       cmd.request.m_ucDoRouteMedia = int(cmd.reprRteMediaStrToInt(args[6]))
+       cmd.request.m_sOptTime = int(args[7])
+       cmd.request.m_sOptRetry = int(args[8])
+       cmd.request.m_sOptAction = int(cmd.reprActionStrToInt(args[9]))
+       cmd.request.m_sSesRefreshTime = int(args[10])
+       cmd.request.m_nRouteGroup = int(args[11])
+       cmd.request.m_nMAXCnt = int(args[12])
+       cmd.request.m_nDeactRsp = int(cmd.reprReponseStrToInt(args[13]))
+
+       cmd.execute(cmd.response.getSize())
+        
+    except Exception, e:
+        cmd.printExcecption(e)
+        return 2
+
+if __name__ == "__main__":
+    sys.exit(main())
 
 
-[OUTPUT]
-            RTE                      NAME     LOC_ID     RMT_ID       TRTE       TYPE      MEDIA OPT_TIME   RETRY  ACTION  SES_TIME  GROUP_ID  PROTOCOL  MAX_CNT  DEACT_RSP        STATUS
-         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-          10111               SS_ICSCF_01      10001      10111          1       MINE     ROUTED        5       3     ACT         0         1       UDP   100000       SEND         AVAIL
 
-RTE_CNT    = 1
 
-RESULT     = OK
 
-COMPLETED - VIBCF61 2018-11-14 15:31:41.515
 
-"""
 
-print(test_data)
-#logger.info(test_data)
+

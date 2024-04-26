@@ -1,34 +1,64 @@
-#!/bin/python3 -tt
-# -*- coding: utf-8 -*-
+#!/bin/python2.7 -tt
 
-import json
-from Logger import funcGetLogger
+from struct import unpack
+from collections import namedtuple
 
-logger=funcGetLogger()
+from mmi.cmd import *
+from mmi.ibcf import *
+from cls.sip_rmt_cls import *
+              
 
-# 입력 데이터 예시
-test_data = """Recv End
------------------------------------------
+class CRTE_SIP_RMT(SipRmtCommand):
+    
+    def __init__(self):
+        SipRmtCommand.__init__(self, MSG_EMS_CS_ADD_RMT_REQ(), MSG_EMS_CS_ADD_RMT_RSP())
 
->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-[INPUT]
-COMMAND    = CRTE-SIP-RMT
+class UsageException(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+        
+def main(argv=None):
 
-             CREATE REMOTE SIP SERVER
+    cmd = CRTE_SIP_RMT()
+    opts, args = cmd.getopt(sys.argv[1:])
+    
+    if len(opts) > 0:
+       cmd.processOptions(opts)
+       return 0
+        
+    try:
+       args = cmd.validateArgs(args)
+       
+       cmd.request.m_uiID = int(args[0])
+       cmd.request.m_szDesc = args[1]
+       cmd.request.m_szDomain = args[2]
+       cmd.request.m_usIPver = int(cmd.reprIpVerStrToInt(args[3]))
+       cmd.request.m_szIP = args[4]
+       cmd.request.m_usPort = int(args[5])
+       cmd.request.m_ucProto = int(cmd.reprProcStrToInt(args[6]))
+       cmd.request.m_sNATOn = int(cmd.reprOnOffStrToInt(args[7]))
+       
+       if str(args[8]):
+          cmd.request.m_nDSCP = int(args[8])
+       else:
+          cmd.request.m_nDSCP = 0
+       
+       cmd.request.m_szNATIP = ''
+       cmd.request.m_usNATPort = 0
+
+       cmd.execute(cmd.response.getSize())
+        
+    except Exception, e:
+        cmd.printExcecption(e)
+        return 2
+
+if __name__ == "__main__":
+    sys.exit(main())
 
 
-[OUTPUT]
-         RMT_ID                      NAME               DOAMIN   IPV                             IP    PORT   PROTOCOL  NAT_ON   DSCP     STATUS
-         ---------------------------------------------------------------------------------------------------------------------------------------
-          10111               SS_ICSCF_01           sktims.net  IPv4                220.103.220.210    5064        UDP     OFF      0      AVAIL
 
-RMT_CNT    = 1
 
-RESULT     = OK
 
-COMPLETED - VIBCF61 2018-11-14 15:31:41.515
 
-"""
 
-print(test_data)
-#logger.info(test_data)
+

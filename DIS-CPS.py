@@ -10,6 +10,7 @@ import funcExecRemote
 from funcHostName import funcGetMyServerName
 import re
 from Logger import funcGetLogger
+import funcIpcShm
 
 logger=funcGetLogger()
 
@@ -35,10 +36,10 @@ def test():
     print(json_dumps)
 
 # funcExecMmiRemote 함수는 주어진 서버 이름에 대해 원격으로 MMI 명령을 실행합니다.
-def funcExecMmiRemote(strServerName):
+def funcExecMmiRemote(strServerName, strParameter):
     nReturnValue = 0
     try:
-        result = funcExecRemote.funcExecRemote(strServerName,"DIS-CPS.py","active")
+        result = funcExecRemote.funcExecRemote(strServerName,"DIS-CPS.py " + strParameter, "active")
         if "bash" in result:
             result = "0"
         elif len(result) < 1:
@@ -50,11 +51,22 @@ def funcExecMmiRemote(strServerName):
 
 # funcEmsRole 함수는 각 서버에 대해 MMI 명령을 실행하고 결과를 JSON 형식으로 출력합니다.
 def funcEmsRole():
-    listServer = ["CP01", "CP02", "AS01", "AS02", "DS"]
+    listServer = ["CP00", "CP01", "DS00"]
+    listCpServerType = ["SIP", "MYVIEW"]
+    listDsServerType = ["IFSYNC"]
     data = []
+    strParameter = ""
     for strServer in listServer: 
-        nServerExecResult = funcExecMmiRemote(strServer)
-        data.append({"server": strServer, "cps": nServerExecResult})
+        if "CP" in strServer:
+            for strType in listCpServerType:
+                strParameter = "type=" + strType
+                nServerExecResult = funcExecMmiRemote(strServer, strParameter)
+                data.append({"server": strServer, "type": strType, "cps": nServerExecResult})
+        elif "DS" in strServer:
+            for strType in listDsServerType:
+                strParameter = "type=" + strType
+                nServerExecResult = funcExecMmiRemote(strServer, strParameter)
+                data.append({"server": strServer, "type": strType, "cps": nServerExecResult})
 
     now = datetime.datetime.now()
     formatted_time = now.strftime("%Y-%m-%dT%H:%M:%S")
@@ -93,21 +105,30 @@ def funcGetSipSessionCps():
     return nCps 
 
 # funcServiceRole 함수는 서버의 역할에 따라 CPS 값을 계산하고 출력합니다.
-def funcServiceRole():
+def funcServiceRole(strParameter):
     strMakeResult = ""
     strMyServerName = funcGetMyServerName()
     nCps = 0
 
     #DIS-SIP-ENV.py check.
-    if strMyServerName is not None and "CP" in strMyServerName:
+    if strMyServerName is not None and "CP" in strMyServerName and "SIP" in strParameter:
         nCps = funcGetSipSessionCps()
-    #shm check. temporary
-    else:
-        #for test.
-        nCps = 88
+    elif strMyServerName is not None and "CP" in strMyServerName and "MYVIEW" in strParameter:
+        dictSvif = funcIpcShm.funcReadCpSvifStatusShm()
+        nCps = int(dictSvif["cps"])
+    elif strMyServerName is not None and "DS" in strMyServerName and "IFSYNC" in strParameter:
+        dictIfsync = funcIpcShm.funcReadDsIfsyncStatusShm()
+        nCps = int(dictIfsync["cps"])
 
     #logger.info(nCps)
     print(nCps)
+    return
+
+def funcHelpPrint():
+    print("DIS-CPS.py is a script that calculates the CPS value of the server.")
+    print("If EMS Excute, no parameter")
+    print("If other Excute, please write parameter TYPE.")
+    print("ex) DIS-CPS.py type=SIP / DIS-CPS.py type=MYVIEW / DIS-CPS.py type=IFSYNC")
     return
 
 # main 함수는 프로그램의 주 실행 루틴입니다.
@@ -115,10 +136,11 @@ def main():
     strParameter = ""
     strRemoteServerName = ""
     num_args = len(sys.argv)
-    if num_args < 2:
-        pass
-    else:
-        strParameter = sys.argv[1]
+
+    # 입력받은 argument를 string 형태로 저장한다.
+    for i in range(1, num_args):
+        strParameter += sys.argv[i] + " "
+    strParameter.upper()
 
     if "help" in strParameter:
         funcHelpPrint()
@@ -128,7 +150,7 @@ def main():
     if strMyServerName is not None and "EMS" in strMyServerName:
         funcEmsRole()
     else:
-        funcServiceRole()
+        funcServiceRole(strParameter)
 
 # 스크립트가 직접 실행되는 경우 main 함수를 호출합니다.
 if __name__ == "__main__":

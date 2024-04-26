@@ -1,34 +1,48 @@
-#!/bin/python3 -tt
-# -*- coding: utf-8 -*-
+#!/bin/python2.7 -tt
 
-import json
-from Logger import funcGetLogger
+from struct import unpack
+from collections import namedtuple
 
-logger=funcGetLogger()
-
-# 입력 데이터 예시
-test_data = """Recv End
------------------------------------------
-
->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-[INPUT]
-COMMAND    = CRTE-RTE
-
-             CREATE ROUTE
+from mmi.cmd import *
+from mmi.ibcf import *
+from cls.rte_cls import *
 
 
-[OUTPUT]
-            RTE                      NAME     LOC_ID     RMT_ID       TRTE       TYPE      MEDIA OPT_TIME   RETRY  ACTION  SES_TIME  GROUP_ID  PROTOCOL  MAX_CNT  DEACT_RSP        STATUS
-         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-          10111               SS_ICSCF_01      10001      10111          1       MINE     ROUTED        5       3     ACT         0         1       UDP   100000       SEND         AVAIL
+class DEL_RTE(IbcfCommand):
+    
+    def __init__(self):
+        IbcfCommand.__init__(self, MSG_EMS_CS_DEL_RTE_REQ(), MSG_EMS_CS_DEL_RTE_RSP())
+     
+    def printInputMessage(self, imsg):
+        print ""
+        print "\t" "%12s = %d" % ('RTE', imsg.m_nId)
 
-RTE_CNT    = 1
+    def printOutputMessage(self, omsg):
+        pass
 
-RESULT     = OK
 
-COMPLETED - VIBCF61 2018-11-14 15:31:41.515
+class UsageException(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+        
+def main(argv=None):
 
-"""
+    cmd = DEL_RTE()
+    opts, args = cmd.getopt(sys.argv[1:])
+    
+    if len(opts) > 0:
+       cmd.processOptions(opts)
+       return 0
+        
+    try:
+       args = cmd.validateArgs(args)
+       cmd.request.m_nId = int(args[0])
 
-print(test_data)
-#logger.info(test_data)
+       cmd.execute(cmd.response.getSize())
+
+    except Exception, e:
+        cmd.printExcecption(e)
+        return 2
+
+if __name__ == "__main__":
+    sys.exit(main())

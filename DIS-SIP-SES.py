@@ -50,7 +50,7 @@ def funcExecMmiRemote(strServerName):
     return nReturnValue 
 
 def funcEmsRole():
-    listServer = ["CP01", "CP02"]
+    listServer = ["CP00", "CP01"]
     data = []
     for strServer in listServer: 
         nServerExecResult = funcExecMmiRemote(strServer)

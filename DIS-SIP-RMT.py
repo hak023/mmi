@@ -1,35 +1,83 @@
-#!/bin/python3 -tt
-# -*- coding: utf-8 -*-
+#!/bin/python2.7 -tt
 
-import json
-from Logger import funcGetLogger
+from struct import unpack
+from collections import namedtuple
 
-logger=funcGetLogger()
+from mmi.cmd import *
+from mmi.ibcf import *
+from cls.sip_rmt_cls import *
 
-# 입력 데이터 예시
-test_data = """Recv End
------------------------------------------
+RANGE_ARG_DELIM = '-'
+RTE_FAIL_MSG = 'CntRange Paremeter error'
 
->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-[INPUT]
-COMMAND    = DIS-SIP-RMT
+class DIS_SIP_RMT(SipRmtCommand):
+    
+    def __init__(self):
+        SipRmtCommand.__init__(self, MSG_EMS_CS_DIS_RMT_REQ(), MSG_EMS_CS_DIS_RMT_RSP())
 
-             DISPLAY REMOTE SIP SERVER
+    def printInputMessage(self, imsg):
+        print ""
 
+class UsageException(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+        
+def main(argv=None):
 
-[OUTPUT]
-         RMT_ID                      NAME               DOAMIN   IPV                             IP    PORT   PROTOCOL  NAT_ON   DSCP     STATUS
-         ---------------------------------------------------------------------------------------------------------------------------------------
-          10111               SS_ICSCF_01           sktims.net  IPv4                220.103.220.210    5064        UDP     OFF      0      AVAIL
-          10112              SS_OPTION_01           sktims.net  IPv4                220.103.220.210    3013        UDP     OFF      0      AVAIL
+    cmd = DIS_SIP_RMT()
+    opts, args = cmd.getopt(sys.argv[1:])
+    
+    if len(opts) > 0:
+       cmd.processOptions(opts)
+       return 0
+        
+    try:
+       args = cmd.validateArgs(args)
+                     
+       if str(args[0]):
+          cmd.request.m_nSort_type = 1
+          cmd.request.m_nBegin = int(args[0])
+          cmd.request.m_nEnd = int(args[0])
+          cmd.isIdxSearch = 1
+          cmd.rangeCntStart = 0
+          cmd.rangeCntEnd = 0
+       elif str(args[1]):
+          cmd.request.m_nSort_type = 0
+          cmd.request.m_nBegin = 0
+          cmd.request.m_nEnd = 0
+          cmd.isIdxSearch = 0
+          
+          _list = args[1].split(RANGE_ARG_DELIM)
+          if len(_list) != 2:
+             cmd.printExcecption(RTE_FAIL_MSG)
+             return 2 
+          
+          cmd.rangeCntStart = int(_list[0])
+          cmd.rangeCntEnd = int(_list[1])
+          
+          if cmd.rangeCntStart > cmd.rangeCntEnd:
+             cmd.printExcecption(RTE_FAIL_MSG)
+             return 2
+         
+          if cmd.rangeCntStart == 0 or cmd.rangeCntEnd == 0:
+             cmd.printExcecption(RTE_FAIL_MSG)
+             return 2
+                   
+       else:
+          cmd.request.m_nSort_type = 0
+          cmd.request.m_nBegin = 0
+          cmd.request.m_nEnd = 0
+          cmd.isIdxSearch = 0
+          cmd.rangeCntStart = 0
+          cmd.rangeCntEnd = 0
+          
+       cmd.request.m_szKey = ""
 
-RMT_CNT    = 2
+       cmd.execute(cmd.response.getSize())
 
-RESULT     = OK
+    except Exception, e:
+        cmd.printExcecption(e)
+        return 2
 
-COMPLETED - VIBCF61 2018-11-14 15:31:41.515
-
-"""
-
-print(test_data)
-#logger.info(test_data)
+if __name__ == "__main__":
+    sys.exit(main())

@@ -115,7 +115,7 @@ def funcExecMmiRemote(strServerName, strService, strStatus):
     return nReturnValue 
 
 def funcEmsRole():
-    listServer = ["AS00", "AS01", "CP00", "CP01", "DS"]
+    listServer = ["AS00", "AS01", "CP00", "CP01", "DS00"]
     #listAsService = ["ASFR", "Myview"]
     strServiceName = ""
     strServerAndService = ""

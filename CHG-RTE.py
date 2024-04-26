@@ -1,35 +1,114 @@
-#!/bin/python3 -tt
-# -*- coding: utf-8 -*-
+#!/bin/python2.7 -tt
 
-import json
-from Logger import funcGetLogger
+from struct import unpack
+from collections import namedtuple
 
-logger=funcGetLogger()
+from mmi.cmd import *
+from mmi.ibcf import *
+from cls.rte_cls import *
+              
 
-# �Է� ������ ����
-test_data = """Recv End
------------------------------------------
-binary length : 336
-ResponseMsg(uiMagicCookie=0, uiMsgLen=336, uiType=33554432, uiSubType=570429476, uiCompId=2, uiCompSesId=0, uiAsId=0, uiAsSesId=0, szSesDesc='\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', uiReasonCode=0, union_Reserved='\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', m_nResult=0, m_nReason=0, m_szReasonDesc='Msync_SUCCESS\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', m_stRte=[StructInfo(m_uiID=50001, m_szDesc='LocalTest1\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', m_uiLID=50001, m_uiRID=50001, m_uiTRTE=1, m_ucType=1, m_ucDoRouteMedia=1, m_sOptTime=5, m_sOptRetry=3, m_sOptAction=0, m_sSesRefreshTime=0, m_nRouteGroup=1, m_nMAXCnt=100000, m_nDeactRsp=1, m_ucReserved='\x00\x00\x00\x00', m_ucStatus=1, m_ucProto=3, m_ucUsed=1, m_usReserved2=0, m_uiBusyCnt=0, m_uiICCnt=0, m_uiOGCnt=0, m_nCurRetry=1, m_nIndex=31)])
+class CHG_RTE(SipRteCommand):
+    
+    def __init__(self):
+        SipRteCommand.__init__(self, MSG_EMS_CS_CHG_RTE_REQ(), MSG_EMS_CS_CHG_RTE_RSP())
 
->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-[INPUT]
-COMMAND    = CHG-RTE
+class UsageException(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+        
+def main(argv=None):
 
-             CHANGE ROUTE
+    cmd = CHG_RTE()
+    opts, args = cmd.getopt(sys.argv[1:])
+    
+    if len(opts) > 0:
+       cmd.processOptions(opts)
+       return 0
+        
+    try:
+       args = cmd.validateArgs(args)
+       
+       cmd.request.m_uiID = int(args[0])
+       
+       if str(args[1]):
+           cmd.request.m_szDesc = args[1]
+       else:
+           cmd.request.m_szDesc = ''    
+       
+       if str(args[2]):    
+           cmd.request.m_uiLID = int(args[2])
+       else:
+           cmd.request.m_uiLID = 0
+       
+       if str(args[3]):        
+           cmd.request.m_uiRID = int(args[3])
+       else:
+           cmd.request.m_uiRID = 0
+       
+       if str(args[4]):        
+           cmd.request.m_uiTRTE = int(args[4])
+       else:
+           cmd.request.m_uiTRTE = 0
+               
+       if str(args[5]):
+           cmd.request.m_ucType = int(cmd.reprRteTypeStrToInt(args[5]))
+       else:
+           cmd.request.m_ucType = 0
+               
+       if str(args[6]):
+           cmd.request.m_ucDoRouteMedia = int(cmd.reprRteMediaStrToInt(args[6]))
+       else:
+           cmd.request.m_ucDoRouteMedia = 0
+               
+       if str(args[7]):
+           cmd.request.m_sOptTime = int(args[7])
+       else:
+           cmd.request.m_sOptTime = -1
+           
+       if str(args[8]):    
+           cmd.request.m_sOptRetry = int(args[8])
+       else:
+           cmd.request.m_sOptRetry = -1
+       
+       if str(args[9]):    
+           cmd.request.m_sOptAction = int(cmd.reprActionStrToInt(args[9]))
+       else:
+           cmd.request.m_sOptAction = -1
+       
+       if str(args[10]):        
+           cmd.request.m_sSesRefreshTime = int(args[10])
+       else:
+           cmd.request.m_sSesRefreshTime = -1
+               
+       if str(args[11]):
+           cmd.request.m_nRouteGroup = int(args[11])
+       else:
+           cmd.request.m_nRouteGroup = -1
+           
+       if str(args[12]):
+           cmd.request.m_nMAXCnt = int(args[12])
+       else:
+           cmd.request.m_nMAXCnt = -1
+       
+       if str(args[13]):        
+           cmd.request.m_nDeactRsp = int(cmd.reprReponseStrToInt(args[13]))
+       else:
+           cmd.request.m_nDeactRsp = -1
 
-                 RTE = 50001
-                NAME = LocalTest1
+       cmd.execute(cmd.response.getSize())
+        
+    except Exception, e:
+        cmd.printExcecption(e)
+        return 2
 
-[OUTPUT]
-            RTE                      NAME     LOC_ID     RMT_ID       TRTE       TYPE      MEDIA OPT_TIME   RETRY  ACTION  SES_TIME  GROUP_ID  PROTOCOL  MAX_CNT  DEACT_RSP        STATUS
-         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-          10111                LocalTest1      50001      50001          1       MINE     ROUTED        5       3     ACT         0         1       UDP   100000       SEND       UNAVAIL
+if __name__ == "__main__":
+    sys.exit(main())
 
-RESULT     = OK
-<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-"""
 
-#logger.info(test_data)
-print(test_data)
+
+
+
+
+
