@@ -38,12 +38,13 @@ def funcExecMmiRemote(strServerName, strParameter):
     return nReturnValue 
 
 def funcEmsRole(strParameter):
-    listServer = ["CP01", "CP02"]
+    listServer = ["CP00", "CP01"]
     data = []
     bExecRemoteResult = False
     strExecRemoteResult = ""
     for strServer in listServer: 
         strServerExecResult = funcExecMmiRemote(strServer, strParameter)
+        # strServerExecResult가 "Failed"를 포함하고 있으면 bExecRemoteResult를 False로 설정한다.
         if "Failed" in strServerExecResult["result"]:
             bExecRemoteResult = False
         else:
@@ -51,7 +52,6 @@ def funcEmsRole(strParameter):
         data.append(strServerExecResult)
         #strCpServerResult = funcExecMmiRemote(strServer)
         #data.append({"server": strServer, "cps": strCpServerResult.strip("\n")})
-    print(strExecRemoteResult)
     if bExecRemoteResult == True:
         strExecRemoteResult = "Success"
     else:
@@ -64,6 +64,7 @@ def funcEmsRole(strParameter):
     output_data.update({"result": strExecRemoteResult})
 
     output_json = json.dumps(output_data, indent=4)
+    print(output_json)
     #logger.info(output_json)
 
     return
@@ -88,7 +89,7 @@ def funcParseDisRte(strDisRteResult):
 
 def funcCheckValidationRte(dicParameter):
 
-    bResult = True
+    bResult = False
     listRteId = []
     try:
         output = subprocess.check_output(['/home/vfras/mmi/DIS-RTE.py'], timeout=1)
@@ -96,7 +97,7 @@ def funcCheckValidationRte(dicParameter):
         listRteId = funcParseDisRte(strExcuteOutput)
         for rte_id in listRteId:
             if rte_id == dicParameter["ID"]:
-                return True
+                bResult = True
     except subprocess.CalledProcessError as e:
         bResult = False
     except subprocess.TimeoutExpired:
@@ -123,7 +124,7 @@ def funcParseDisRmt(strDisRmtResult):
     return listRmtId
 
 def funcCheckValidationRmt(dicParameter):
-    bResult = True
+    bResult = False
     listRmtId = []
     try:
         output = subprocess.check_output(['/home/vfras/mmi/DIS-SIP-RMT.py'], timeout=1)
@@ -131,7 +132,7 @@ def funcCheckValidationRmt(dicParameter):
         listRmtId = funcParseDisRmt(strExcuteOutput)
         for rmt_id in listRmtId:
             if rmt_id == dicParameter["ID"]:
-                return True
+                bResult = True
 
     except subprocess.CalledProcessError as e:
         bResult = False
@@ -189,18 +190,6 @@ def funcExecDelSipRmt(strDelSipRmtParameter):
     try:
         output = subprocess.check_output(['/home/vfras/mmi/DEL-SIP-RMT.py', strDelSipRmtParameter], timeout=1)
         strExcuteOutput = output.decode('utf-8')
-
-        """ 할 필요 없을듯? GUI는 자동으로 DIS 명령어를 내린다. 따라서 확인할 필요 없다.
-        # DIS-SIP-NODE를 import하여 parse_rmt_output함수를 실행한다.
-        module_name = 'DIS-SIP-NODE'
-        module = importlib.import_module(module_name)
-        rmt_data, rmt_count, rmt_result = module.parse_rmt_output(strExcuteOutput)
-        # 결과값을 확인한다.
-        if "NOK" in rmt_result:
-            bResult = False
-        else:
-            bResult = True
-        """
         bResult = True
 
     except subprocess.CalledProcessError as e:
@@ -216,19 +205,6 @@ def funcExecDelRte(strDelRteParameter):
         output = subprocess.check_output(['/home/vfras/mmi/DEL-RTE.py', strDelRteParameter], timeout=1)
         strExcuteOutput = output.decode('utf-8')
 
-        """ 할 필요 없을듯? GUI는 자동으로 DIS 명령어를 내린다. 따라서 확인할 필요 없다.
-
-        # DIS-SIP-NODE를 import하여 parse_rte_output함수를 실행한다.
-        module_name = 'DIS-SIP-NODE'
-        module = importlib.import_module(module_name)
-        rte_data, rte_count, rte_result = module.parse_rte_output(strExcuteOutput)
-        
-        # 결과값을 확인한다.
-        if "NOK" in rte_result:
-            bResult = False
-        else:
-            bResult = True
-        """
         bResult = True
 
     except subprocess.CalledProcessError as e:
@@ -279,12 +255,12 @@ def funcCheckParameterValidation(dicParameter):
 
 def funcMakeDelSipRmtParameter(dicParameter):
     # 입력예시) DEL-SIP-RMT RMT_ID=13511
-    strParameter = f"RMT_ID={dicParameter['ID']}"
+    strParameter = f" RMT_ID={dicParameter['ID']}"
     return strParameter
 
 def funcMakeDelRteParameter(dicParameter):
     # 입력예시) DEL-RTE RTE=13511
-    strParameter = f"RTE={dicParameter['ID']}"
+    strParameter = f" RTE={dicParameter['ID']}"
     return strParameter
 
 def funcServiceRole(dicParameter):
@@ -297,27 +273,13 @@ def funcServiceRole(dicParameter):
         bReturn = funcCheckValidationRte(dicParameter)
         if bReturn == False:
             bServiceRoleFunctionResult = False
-        
+
         # DIS-SIP-RMT.py 파일을 실행하여 RMT_ID 값과 dicParameter의 ID값이 일치하는지 확인한다.
         bReturn = funcCheckValidationRmt(dicParameter)
         if bReturn == False:
             bServiceRoleFunctionResult = False
         
-        """ DELETE 시에는 확인할 필요 없어서 삭제.
-        # DIS-SIP-LOC.py 파일을 실행하여 LOC_ID 값을 확인한다.
-        nSipLocId = funcGetSipLocId()
-        if int(nSipLocId) < 1:
-            bServiceRoleFunctionResult = False
-        """
-
         if (bServiceRoleFunctionResult == True):
-            # dicParameter의 값을 이용하여 DEL-SIP-RMT.py 명령어의 parameter String을 만든다.
-            strDelSipRmtParameter = funcMakeDelSipRmtParameter(dicParameter)
-            # CRTE-SIP-RMT.py 파일을 실행하여 SIP RMT를 생성한다.
-            bReturn = funcExecDelSipRmt(strDelSipRmtParameter)
-            if bReturn == False:
-                bServiceRoleFunctionResult = False
-            
             # dicParameter의 값을 이용하여 CRTE-RTE.py 명령어의 parameter String을 만든다.
             strDelSipRteParameter = funcMakeDelRteParameter(dicParameter)
             # DEL-RTE.py 파일을 실행하여 RTE 를 생성한다.
@@ -325,11 +287,19 @@ def funcServiceRole(dicParameter):
             #print("aaa", strCrteSipRteParameter, bReturn)
             if bReturn == False:
                 bServiceRoleFunctionResult = False
+            # dicParameter의 값을 이용하여 DEL-SIP-RMT.py 명령어의 parameter String을 만든다.
+            strDelSipRmtParameter = funcMakeDelSipRmtParameter(dicParameter)
+            # CRTE-SIP-RMT.py 파일을 실행하여 SIP RMT를 생성한다.
+            bReturn = funcExecDelSipRmt(strDelSipRmtParameter)
+            if bReturn == False:
+                bServiceRoleFunctionResult = False
+
     else:
         bServiceRoleFunctionResult = False
+    
 
-    # 결과를 Print하여 EMS 서버에서 알 수 있도록 한다.
-    if bServiceRoleFunctionResult == True:
+    # 작업 후 작업이 잘 됐는지 결과를 검사한다. DEL 케이스 이므로 False가 나와야 정상.
+    if funcCheckValidationRmt(dicParameter) == False and funcCheckValidationRte(dicParameter) == False:
         print("Success")
     else:
         print("Failed")

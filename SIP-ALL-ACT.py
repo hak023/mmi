@@ -33,8 +33,9 @@ def funcExecMmiRemote(strServerName):
     nTotal = 0
     nCurrent = 0
     result = ""
+    strParameter = " SERVER=" + strServerName
     try:
-        result = funcExecRemote.funcExecRemote(strServerName,"SIP-ALL-DEACT.py","all")
+        result = funcExecRemote.funcExecRemote(strServerName,"SIP-ALL-ACT.py" + strParameter,"all")
     except subprocess.TimeoutExpired as e:
         #logger.error("Command execution timed out : ", e)
         print("Command execution timed out : ", e)
@@ -54,7 +55,7 @@ def funcExecMmiRemote(strServerName):
     return nReturnValue 
 
 def funcEmsRole(strRemoteServerName):
-    listServer = ["CP01", "CP02"]
+    listServer = ["CP00", "CP01"]
 
     #listServer 에서 문자열 검색하여 strRemoteServerName가 존재하는지 확인한다.
     if strRemoteServerName not in listServer:
@@ -116,7 +117,6 @@ def funcRteSetAllDeact():
         strExcuteOutput = output.decode('utf-8')
         listRteId = funcParseDisRte(strExcuteOutput)
         for rte_id in listRteId:
-            print(rte_id)
             subprocess.check_output(['/home/vfras/mmi/CHG-RTE.py', f'RTE={rte_id}, ACTION=ACT'], timeout=1)
         bResult = True
     except subprocess.CalledProcessError as e:

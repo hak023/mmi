@@ -140,6 +140,9 @@ def funcDataMerge(rte_data, loc_data, rmt_data, strServer):
 
 def funcParseLocAndRmtAndRte(strDisSipLocResult, strDisSipRmtResult, strDisRteResult, strServer):
     result_data = {}
+    loc_data = []
+    rmt_data = []
+    rte_data = []
     if strDisSipLocResult:
         loc_data, loc_count, loc_result = parse_loc_output(strDisSipLocResult)
         if loc_data:

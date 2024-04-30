@@ -60,7 +60,7 @@ def funcEmsRole():
     listServer = ["AS00", "AS01", "CP00", "CP01", "DS00"]
     listAsServerType = ["ASFR"]
     listCpServerType = ["MYVIEW"]
-    listDsServerType = ["IFSVR"]
+    listDsServerType = ["IFSYNC"]
     strServiceName = ""
     data = []
 
