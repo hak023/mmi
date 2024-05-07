@@ -260,12 +260,14 @@ def funcServiceRole(dicParameter):
     if strMyServerName is not None and "CP" in strMyServerName:
         # DIS-RTE.py 파일을 실행하여 RTE 값과 dicParameter의 ID값이 일치하는지 확인한다.
         bReturn = funcCheckValidationRte(dicParameter)
-        if bReturn == False:
+        # 값을 입력하기 전 이므로 False가 나와야 정상.
+        if bReturn == True:
             bServiceRoleFunctionResult = False
         
         # DIS-SIP-RMT.py 파일을 실행하여 RMT_ID 값과 dicParameter의 ID값이 일치하는지 확인한다.
         bReturn = funcCheckValidationRmt(dicParameter)
-        if bReturn == False:
+        # 값을 입력하기 전 이므로 False가 나와야 정상.
+        if bReturn == True:
             bServiceRoleFunctionResult = False
         
         # DIS-SIP-LOC.py 파일을 실행하여 LOC_ID 값을 확인한다.
@@ -292,11 +294,10 @@ def funcServiceRole(dicParameter):
         bServiceRoleFunctionResult = False
 
     # 작업 후 작업이 잘 됐는지 결과를 검사한다. ADD 케이스 이므로 True가 나와야 정상.
-    if funcCheckValidationRmt(dicParameter) == False and funcCheckValidationRte(dicParameter) == False:
+    if funcCheckValidationRmt(dicParameter) == True and funcCheckValidationRte(dicParameter) == True:
         print("Success")
     else:
         print("Failed")
-
     return
 
 def funcHelpPrint():

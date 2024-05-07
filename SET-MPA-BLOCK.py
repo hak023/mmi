@@ -52,12 +52,12 @@ def funcAddMpBlockToFile(strId):
     try:
         # strId를 ','로 split하고 공백을 삭제하여 리스트로 만듭니다.
         id_list = [id.strip() for id in strId.split(',')]
-
+        strMyServerName = funcGetMyServerName()
         # id_list를 data에 block 체크하여 업데이트합니다.
         for id in id_list:
             for item in data:
                 if item['id'] == id:
-                    print(f"ID = {item['id']}    {item['block']} -> BLOCKED")
+                    print(f"SERVER = {strMyServerName}  ID = {item['id']}    {item['block']} -> BLOCKED")
                     #logger.info(f"ID = {item['id']}    {item['block']} -> BLOCKED")
                     item['block'] = 'BLOCKED'
                     break
@@ -121,11 +121,9 @@ def funcExecMmiRemote(strServerName, strParameter):
     nCurrent = 0
     result = ""
     try:
-        print("aaa", strServerName, strParameter, result)
-        result = funcExecRemote.funcExecRemote(strServerName,"SET-MPA-BLOCK.py " + strParameter, "active")
-        print("aaa", strServerName, strParameter, result)
+        result = funcExecRemote.funcExecRemote(strServerName,"SET-MPA-BLOCK.py " + strParameter, "all")
         if "bash" in result:
-            print("error: ", result)
+            print(strServerName, " bash error occured! ", result)
             #logger.error(f"error: {result}")
         elif len(result) < 1:
             # nothing work.
@@ -152,7 +150,9 @@ def funcEmsRole(strParameter):
     # MPA BLOCK을 처리하기 위한 기초 데이터를 만든다.
     funcDataInitialize()
 
-    listServer = ["AS00"]
+    # active/standby 모두 바꾸자. 그게 맞다.
+    listServer = ["AS00", "AS01"]
+    #listServer = ["AS00"]
     strMpaBlockConfig = ""
     for strServer in listServer: 
         funcExecMmiRemote(strServer, strParameter)

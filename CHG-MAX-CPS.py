@@ -16,7 +16,43 @@ logger=funcGetLogger()
 
 # 파일 경로
 myview_file_path = "/home/vfras/config/SVIF/SVIF_REFRESH.cfg"
-#myview_file_path = "/home/vfras/hak/SVIF_REFRESH.cfg"
+ifsync_file_path = "/home/vfras/config/ifsync/IFSYNC_REFRESH.cfg"
+
+# myview의 maxcps config를 변경한다.
+def funcChangeIfSyncMaxCps(dicParameter):
+    strOnOff = dicParameter["on"]
+    strMaxCps = dicParameter["max"]
+    strResult = "NOK"
+    try:
+        # ConfigParser 객체를 생성합니다.
+        config = configparser.ConfigParser()
+
+        # 설정 파일을 읽습니다.
+        config.read(ifsync_file_path)
+
+        # 'IFSYNC' 섹션의 'MAX_CPS' 값을 변경합니다.
+        if strOnOff == "ON":
+            config.set('IFSYNC', 'MAX_CPS', strMaxCps)
+        elif strOnOff == "OFF":
+            config.set('IFSYNC', 'MAX_CPS', "0")
+
+        # 변경된 설정을 파일에 씁니다.
+        with open(ifsync_file_path, 'w') as configfile:
+            config.write(configfile)
+
+        #print(f"{ifsync_file_path} 파일의 'MAX_CPS' 값을 변경했습니다.")
+        strResult = "OK"
+    except configparser.NoSectionError:
+        print(f"'OVERLOAD_CONTROL' 섹션이 {ifsync_file_path} 파일에 없습니다.")
+    except configparser.NoOptionError:
+        print(f"'MAX_COUNT' 옵션이 'OVERLOAD_CONTROL' 섹션에 없습니다.")
+    except FileNotFoundError:
+        print(f"{ifsync_file_path} 파일을 찾을 수 없습니다.")
+    except PermissionError:
+        print(f"{ifsync_file_path} 파일을 쓸 권한이 없습니다.")
+    except Exception as e:
+        print(f"파일 처리 중 에러가 발생했습니다: {e}")
+    return strResult
 
 # myview의 maxcps config를 변경한다.
 def funcChangeMyviewMaxCps(dicParameter):
@@ -90,7 +126,7 @@ def funcExecMmiRemote(strServerName, strParameter):
 
 # funcEmsRole 함수는 각 서버에 대해 MMI 명령을 실행하고 결과를 JSON 형식으로 출력합니다.
 def funcEmsRole(strParameter):
-    listServer = ["CP00", "CP01", "DS"]
+    listServer = ["CP00", "CP01", "DS00"]
     data = []
     dicServerExecResult = {}
     strExecReturn = ""
@@ -103,7 +139,7 @@ def funcEmsRole(strParameter):
                 dicServerExecResult = json.loads(str(strExecReturn))        
                 data.append(dicServerExecResult)
         elif "DS" in strServer:
-            if "IFSVR" in strParameter:
+            if "IFSYNC" in strParameter:
                 strExecReturn = funcExecMmiRemote(strServer, strParameter)
                 # strExecReturn json형태이다. 따라서 json.loads를 사용하여 dictionary로 변환한다.
                 dicServerExecResult = json.loads(str(strExecReturn))        
@@ -160,12 +196,9 @@ def funcChgMyviewCps(dicParameter):
     strResult = funcChangeMyviewMaxCps(dicParameter)
     return strResult
 
-def funcChgIfsvrCps(dicParameter):
-
-    # 담당자가 규격을 안준다....
-    nCps = 44
-    strOnOff = "OFF"
-    strResult = "OK"
+def funcChgIfSyncCps(dicParameter):
+    # config 파일을 읽어서 max cps 값을 변경한다.
+    strResult = funcChangeIfSyncMaxCps(dicParameter)
     return strResult
 
 # funcServiceRole 함수는 서버의 역할에 따라 CPS 값을 계산하고 출력합니다.
@@ -176,13 +209,12 @@ def funcServiceRole(dicParameter):
     strOnOff = dicParameter["on"]
     strResult = ""
 
-    #DIS-SIP-ENV.py check.
     if strMyServerName is not None and "CP" in strMyServerName and "SIP" in dicParameter["type"]:
         strResult = funcChgSipMaxCps(dicParameter)
     elif strMyServerName is not None and "CP" in strMyServerName and "MYVIEW" in dicParameter["type"]:
         strResult = funcChgMyviewCps(dicParameter)
-    elif strMyServerName is not None and "DS" in strMyServerName and "IFSVR" in dicParameter["type"]:
-        strResult = funcChgIfsvrCps(dicParameter)
+    elif strMyServerName is not None and "DS" in strMyServerName and "IFSYNC" in dicParameter["type"]:
+        strResult = funcChgIfSyncCps(dicParameter)
     else:
         #error
         nCps = -1 
@@ -197,7 +229,7 @@ def funcServiceRole(dicParameter):
 def funcHelpPrint():
     print("help message")
     print("ex) DIS-MAX-CPS.py type=SIP")
-    print("type의 종류는 SIP, MYVIEW, IFSVR 입니다.")
+    print("type의 종류는 SIP, MYVIEW, IFSYNC 입니다.")
     
     # Add the implementation of the funcHelpPrint function here
     pass
@@ -222,7 +254,7 @@ def main():
         dicParameter[strArgList[0]] = strArgList[1]
 
 
-    if "help" in strParameter:
+    if "help" in strParameter or len(strParameter) < 1:
         funcHelpPrint()
         return
 

@@ -29,12 +29,12 @@ def funcExecMmiRemote(strServerName):
             print(result)
             #logger.info(result)
         else:
-            nReturnValue = "success"
+            pass
     except Exception as e:
         print("error : ", e) 
         #logger.error("error : ", e)
 
-    return nReturnValue 
+    return result 
 
 def funcCheckProcess():
     strExcuteOutput = ""
@@ -65,12 +65,12 @@ def funcHelpPrint():
 
 def funcEmsRole(strRemoteServerName):
     nServerExecResult = funcExecMmiRemote(strRemoteServerName)
-
+    print (nServerExecResult)
     return
 
 def main():
     strParameter = ""
-    strRemoteServiceName = ""
+    strRemoteServerName = ""
     num_args = len(sys.argv)
     funcMmiPrint.funcMmiPrint(sys.argv)
     if num_args < 2:
@@ -79,6 +79,7 @@ def main():
     else:
         strParameter = sys.argv[1]
     strParameter.upper()
+    strMyServerName = funcGetMyServerName()
 
     if "=" in strParameter:
         strParameterName, strParameterValue = strParameter.split('=')
@@ -90,20 +91,22 @@ def main():
             return
         
         # strParameterValue 에 아무것도 없을때.
-        if len(strParameterValue) < 1 :
+        if len(strParameterValue) < 1 and "EMS" in strMyServerName: # type: ignore
             funcHelpPrint()
             funcMmiPrint.funcMmiPrintComplete()
             return
     else:
-        funcHelpPrint()
-        return
+        if strRemoteServerName and "EMS" in strRemoteServerName:
+            funcHelpPrint()
+            return
+        else:
+            pass
 
-    if "EMS" in strRemoteServerName:
+    if strRemoteServerName and "EMS" in strRemoteServerName:
         funcServiceRole()
 
-    strMyServerName = funcGetMyServerName()
-    if "EMS" in strMyServerName:
-        funcEmsRole(strRemoteServiceName)
+    if strMyServerName and "EMS" in strMyServerName:
+        funcEmsRole(strRemoteServerName)
     else:
         funcServiceRole()
 

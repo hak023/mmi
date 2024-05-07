@@ -72,11 +72,11 @@ def funcExecMmiRemote(strServerName):
     nCurrent = 0
     result = ""
     try:
-        result = funcExecRemote.funcExecRemote(strServerName,"DIS-MPA-BLOCK.py","active")
+        result = funcExecRemote.funcExecRemote(strServerName,"DIS-MPA-BLOCK.py","all")
         if "bash" in result:
-            print("error: ", result)
+            print(strServerName, " bash error occured! ", result)
         elif len(result) < 1:
-            print("error: ", result)
+            pass
         else:
             # nothing work.
             pass
@@ -89,8 +89,9 @@ def funcEmsRole():
     # MPA BLOCK을 처리하기 위한 기초 데이터를 만든다.
     funcDataInitialize()
     
-
-    listServer = ["AS"]
+    # active/standby 모두 바꾸자. 그게 맞다.
+    listServer = ["AS00", "AS01"]
+    #listServer = ["AS00"]
     strMpaBlockConfig = ""
     for strServer in listServer: 
         strMpaBlockConfig = funcExecMmiRemote(strServer)

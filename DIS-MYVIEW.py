@@ -4,12 +4,19 @@
 import json
 import sys
 import funcSubsDBConn
+from jaydebeapi import DatabaseError
 from Logger import funcGetLogger
 logger=funcGetLogger()
 
 def funcGetMyViewData(_objDb, param):
     cursor = _objDb.cursor()
-    cursor.execute("SELECT MSISDN, VIDEO_RING, URL FROM TB_MYVIEW_URL_DATA WHERE MSISDN LIKE ?", (param,));
+    param = param[1:]
+    try:
+        cursor.execute("SELECT MSISDN, VIDEO_RING, URL FROM TB_MYVIEW_URL_DATA WHERE MSISDN LIKE ?", (param,))
+    except DatabaseError as e:
+        print(str(e))
+        _objDb.rollback()
+        return
     rows = cursor.fetchall()
     result_list = []
     for row in rows:
@@ -20,9 +27,9 @@ def funcGetMyViewData(_objDb, param):
 def funcDataInitialize(result_list):
     data=[]
     for row in result_list:
-        data.append({"MSISDN": '0'+row[0], "VIDEO_RING": row[1], "URL": row[2]})
+        data.append({"MSISDN": "0"+row[0], "VIDEO_RING": row[1], "URL": row[2]})
 
-    print(data)
+    print(json.dumps(data))
 
     return
 
